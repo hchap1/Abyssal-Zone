@@ -1311,11 +1311,17 @@
     </None>
     <None Include="assets\shaders\tile_fragment_shader.glsl" />
     <None Include="assets\shaders\tile_vertex_shader.glsl" />
-    <None Include="assets\levels\0.tilemap" />
+    <None Include="assets\levels\1.tilemap" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\tile_texture.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\textures\blocks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\glfw3.lib" />
   </ItemGroup>
 </Project>

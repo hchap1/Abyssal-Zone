@@ -8,7 +8,8 @@
 #include <numeric>
 #include <CUSTOM/tilemap.h>
 #include <CUSTOM/renderer.h>
-
+#include <filesystem>
+namespace fs = std::filesystem;
 using namespace std;
 
 tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight) {
@@ -21,7 +22,7 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
 
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
-        totalSize += row.size() * 24 * sizeof(float);
+        totalSize += row.size() * 30 * sizeof(float);
     }
 
     float* vertexData = new float[totalSize];
@@ -39,45 +40,46 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = tileType;
 
                 //Top left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
-                vertexData[index++] =  yOffset - offset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = yOffset - offset;
+                vertexData[index++] = tileType;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = tileType;
 
                 //Top right
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 1;
-                vertexData[index++] =  yOffset - offset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = yOffset - offset;
+                vertexData[index++] = tileType;
 
                 //Top left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
-                vertexData[index++] =  yOffset - offset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = yOffset - offset;
+                vertexData[index++] = tileType;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                //vertexData[index++] = tileType;
+                vertexData[index++] = tileType;
             }
         }
     }
+    cout << "NUM TRIANGLES: " << numOfTriangles << " WIDTH " << tilemap.size() << " HEIGHT " << tilemap[0].size() << endl;
     tuple<float*, int> dataReturn(vertexData, numOfTriangles);
     return dataReturn;
 }
@@ -114,7 +116,17 @@ RenderLayer::RenderLayer(std::vector<int> attributes, std::string shaderName, st
 
     //Load the image file
     int width, height, nrChannels;
-    string texturePath = "assets/textures/" + textureName;
+    string texturePath = "assets/textures/" + textureName + ".png";
+    
+
+    bool doesExist = fs::exists(texturePath);
+    if (doesExist) {
+        cout << "FOUND " << texturePath << endl;
+    }
+    else {
+        cout << "COULD NOT FIND " << texturePath << endl;
+    }
+
     unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 
     //Bind image data to texture obj

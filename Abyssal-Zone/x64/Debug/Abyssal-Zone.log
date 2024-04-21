@@ -1,2 +1,12 @@
 ﻿  main.cpp
+  renderer.cpp
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(43,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(50,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(57,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(64,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(71,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(78,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(181,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\renderer.cpp(211,24): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
   Abyssal-Zone.vcxproj -> C:\Users\hchap\source\repos\Abyssal-Zone\x64\Debug\Abyssal-Zone.exe
