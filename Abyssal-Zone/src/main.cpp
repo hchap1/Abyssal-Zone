@@ -6,35 +6,54 @@
 #include <tuple>
 using namespace std;
 
-int windowWidth = 800;
-int windowHeight = 600;
+int windowWidth = 1920;
+int windowHeight = 1080;
 
 int main() {
 
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "blocks", false); // x, y, tx, ty
+	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // x, y, tx, ty
+	RenderLayer backgroundRenderer({ 2, 2, 1 }, "background", "tile_texture", false); // x, y, tx, ty
 	//RenderLayer playerRenderer({ 2, 2 }, "player_shader", "player_texture", true); // x, y, tx, ty
-	vector<vector<int>> tilemap = loadTilemap(0);
-	tuple<float*, int> vertexData = tilemapDecoder(tilemap, 32, windowWidth, windowHeight);
-	tilemapRenderer.setVertices(get<0>(vertexData), get<1>(vertexData), 15, GL_STATIC_DRAW);
+	tuple<vector<vector<int>>, vector<vector<int>>> tilemaps = loadTilemap(1);
+	tuple<float*, int> tilemapVertexData = tilemapDecoder(get<0>(tilemaps), 8, windowWidth, windowHeight);
+	tuple<float*, int> backgroundVertexData = tilemapDecoder(get<1>(tilemaps), 8, windowWidth, windowHeight);
+	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+	backgroundRenderer.setVertices(get<0>(backgroundVertexData), get<1>(backgroundVertexData), 15, GL_STATIC_DRAW);
 
 	float x_offset = 0.0f;
 	float y_offset = 0.0f;
 
+	tilemapRenderer.setFloat("screenX", windowWidth);
+	tilemapRenderer.setFloat("screenY", windowHeight);
+	backgroundRenderer.setFloat("screenX", windowWidth);
+	backgroundRenderer.setFloat("screenY", windowHeight);
+
 	glfwSwapInterval(1);
 	while (renderer.isRunning()) {
 		float dt = renderer.getDeltaTime();
-		renderer.fillScreen(25, 20, 90);
+		float fps = 1.0f / dt;
+		renderer.fillScreen(0, 0, 0);
+
+		backgroundRenderer.setFloat("xOffset", x_offset);
+		backgroundRenderer.setFloat("yOffset", y_offset);
+		backgroundRenderer.draw(get<1>(backgroundVertexData));
 
 		tilemapRenderer.setFloat("xOffset", x_offset);
 		tilemapRenderer.setFloat("yOffset", y_offset);
-		tilemapRenderer.draw(get<1>(vertexData));
+		tilemapRenderer.draw(get<1>(tilemapVertexData));
 
 		if (renderer.getKeyDown(GLFW_KEY_UP)) {
-			y_offset -= 0.0001f * dt;
+			y_offset -= 1.0f * dt;
 		}
 		if (renderer.getKeyDown(GLFW_KEY_DOWN)) {
-			y_offset += 0.0001f * dt;
+			y_offset += 1.0f * dt;
+		}
+		if (renderer.getKeyDown(GLFW_KEY_LEFT)) {
+			x_offset -= 1.0f * dt;
+		}
+		if (renderer.getKeyDown(GLFW_KEY_RIGHT)) {
+			x_offset += 1.0f * dt;
 		}
 		renderer.updateDisplay();
 	}

@@ -431,7 +431,11 @@
     <ClInclude Include="include\STB\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\levels\0.tilemap" />
+    <None Include="assets\levels\1.background" />
     <None Include="assets\levels\1.tilemap" />
+    <None Include="assets\shaders\background_fragment_shader.glsl" />
+    <None Include="assets\shaders\background_vertex_shader.glsl" />
     <None Include="assets\shaders\tile_fragment_shader.glsl" />
     <None Include="assets\shaders\tile_vertex_shader.glsl" />
     <None Include="include\GLM\detail\func_common.inl" />

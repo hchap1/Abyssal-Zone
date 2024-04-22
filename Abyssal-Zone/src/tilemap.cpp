@@ -4,27 +4,28 @@
 #include <vector>
 #include <CUSTOM\tilemap.h>
 #include <algorithm>
+using namespace std;
 
-std::vector<std::vector<int>> loadTilemap(int levelID) {
-    const std::string filename = "assets/levels/" + std::to_string(levelID) + ".tilemap";
-    std::ifstream file(filename);
+tuple<vector<vector<int>>, vector<vector<int>>> loadTilemap(int levelID) {
+    const string filename = "assets/levels/" + to_string(levelID) + ".tilemap";
+    ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
+        cerr << "Error opening file: " << filename << endl;
     }
 
-    std::vector<std::vector<int>> tilemap;
+    vector<vector<int>> tilemap;
 
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
+    string line;
+    while (getline(file, line)) {
+        istringstream iss(line);
         int number;
-        std::vector<int> row;
+        vector<int> row;
         while (iss >> number) {
             row.push_back(number);
-            std::cout << number;
+            cout << number;
         }
 
-        std::cout << std::endl;
+        cout << endl;
 
         // Append row
         tilemap.push_back(row);
@@ -32,15 +33,41 @@ std::vector<std::vector<int>> loadTilemap(int levelID) {
 
     file.close();
 
-    std::reverse(tilemap.begin(), tilemap.end());
-        
+    reverse(tilemap.begin(), tilemap.end());
 
-    return tilemap;
+    const string bgfilename = "assets/levels/" + to_string(levelID) + ".background";
+    ifstream bgfile(bgfilename);
+    if (!bgfile.is_open()) {
+        cerr << "Error opening file: " << bgfilename << endl;
+    }
+
+    vector<vector<int>> bgTilemap;
+
+    string bgline;
+    while (getline(bgfile, bgline)) {
+        istringstream bgiss(bgline);
+        int bgnumber;
+        vector<int> bgrow;
+        while (bgiss >> bgnumber) {
+            bgrow.push_back(bgnumber);
+            cout << bgnumber;
+        }
+
+        cout << endl;
+
+        // Append row
+        bgTilemap.push_back(bgrow);
+    }
+
+    bgfile.close();
+
+    reverse(bgTilemap.begin(), bgTilemap.end());
+    return make_tuple(tilemap, bgTilemap);
 }
 
 int* loadLevelData(int levelID) {
     int data[4] = {};
-    std::ifstream dataFile("assets/levels/" + std::to_string(levelID) + ".tilemap");
+    ifstream dataFile("assets/levels/" + to_string(levelID) + ".tilemap");
     dataFile >> data[0] >> data[1] >> data[2] >> data[3];
     dataFile.close();
     return data;

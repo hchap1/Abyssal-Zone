@@ -1312,6 +1312,10 @@
     <None Include="assets\shaders\tile_fragment_shader.glsl" />
     <None Include="assets\shaders\tile_vertex_shader.glsl" />
     <None Include="assets\levels\1.tilemap" />
+    <None Include="assets\levels\0.tilemap" />
+    <None Include="assets\levels\1.background" />
+    <None Include="assets\shaders\background_fragment_shader.glsl" />
+    <None Include="assets\shaders\background_vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\tile_texture.png">

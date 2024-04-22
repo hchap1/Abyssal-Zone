@@ -12,11 +12,11 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight) {
+tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, vector<vector<int>> lightLocations) {
     int numOfTriangles = 0;
 
-    float xScale = 100.0f / windowWidth;
-    float yScale = 100.0f / windowHeight;
+    float xScale = 300.0f / windowWidth;
+    float yScale = 300.0f / windowHeight;
     float offset = (1.0f / tileTextureSize);
     float yOffset;
 
