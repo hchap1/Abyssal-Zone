@@ -8,7 +8,7 @@
 
 using namespace std;
 
-tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight);
+tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize);
 
 class RenderLayer {
 public:

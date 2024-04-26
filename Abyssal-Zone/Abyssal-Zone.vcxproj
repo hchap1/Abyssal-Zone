@@ -118,18 +118,22 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)Abyssal-Zone/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)Abyssal-Zone/lib</AdditionalLibraryDirectories>
+      <ImportLibrary>$(SolutionDir)Abyssal-Zone/include</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -432,10 +436,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\levels\0.tilemap" />
-    <None Include="assets\levels\1.background" />
     <None Include="assets\levels\1.tilemap" />
-    <None Include="assets\shaders\background_fragment_shader.glsl" />
-    <None Include="assets\shaders\background_vertex_shader.glsl" />
+    <None Include="assets\shaders\player_fragment_shader.glsl" />
+    <None Include="assets\shaders\player_vertex_shader.glsl" />
     <None Include="assets\shaders\tile_fragment_shader.glsl" />
     <None Include="assets\shaders\tile_vertex_shader.glsl" />
     <None Include="include\GLM\detail\func_common.inl" />
@@ -577,6 +580,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\blocks.png" />
+    <Image Include="assets\textures\player_texture.png" />
     <Image Include="assets\textures\tile_texture.png" />
   </ItemGroup>
   <ItemGroup>

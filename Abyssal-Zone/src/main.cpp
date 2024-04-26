@@ -4,60 +4,264 @@
 #include <iostream>
 #include "CUSTOM/renderer.h"
 #include <tuple>
+#include <random>
 using namespace std;
 
 int windowWidth = 1920;
 int windowHeight = 1080;
+float startX = 1.0f;
+float startY = 5.0f;
+float playerWidth = 0.8f;
+float playerHeight = 1.8f;
+float blockSize = 300.0f;
+
+bool collide(int blockID) {
+	if (blockID == 1 || blockID == 4) {
+		return true;
+	}
+	return false;
+}
 
 int main() {
+	float timeUntilFlicker = 3.0f;
+	float flickerDuration = 0.5f;
+	float flickerTimer = 0.0f;
+
+	float relativeFPS;
+	float dt;
+	float movementMultiplier = 300.0f / blockSize;
+
+	float halfPlayerWidth = blockSize * 0.5f / windowWidth * playerWidth;
+	float halfPlayerHeight = blockSize * 0.5f / windowHeight * playerHeight;
+
+	float blockWidth = blockSize / windowWidth;
+	float blockHeight = blockSize / windowHeight;
+	float indexXRight;
+	float indexXRightSmall;
+	float indexXLeft;
+	float indexXLeftSmall;
+	float indexY;
+	float indexHeadY;
+	float indexTop;
+	float indexMiddle;
+
+	bool crouching = false;
+	int jumpKeyCounter = 0;
+
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> distribution(1, 10);
 
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // x, y, tx, ty
-	RenderLayer backgroundRenderer({ 2, 2, 1 }, "background", "tile_texture", false); // x, y, tx, ty
-	//RenderLayer playerRenderer({ 2, 2 }, "player_shader", "player_texture", true); // x, y, tx, ty
-	tuple<vector<vector<int>>, vector<vector<int>>> tilemaps = loadTilemap(1);
-	tuple<float*, int> tilemapVertexData = tilemapDecoder(get<0>(tilemaps), 8, windowWidth, windowHeight);
-	tuple<float*, int> backgroundVertexData = tilemapDecoder(get<1>(tilemaps), 8, windowWidth, windowHeight);
-	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
-	backgroundRenderer.setVertices(get<0>(backgroundVertexData), get<1>(backgroundVertexData), 15, GL_STATIC_DRAW);
+	RenderLayer tilemapRenderer({ 2, 2, 2 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
+	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 
-	float x_offset = 0.0f;
-	float y_offset = 0.0f;
+	vector<vector<int>> tilemap = loadTilemap(1);
+	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 8, windowWidth, windowHeight, blockSize);
+	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 18, GL_STATIC_DRAW);
+
+	float playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
+	float playerY = -blockHeight * startY - halfPlayerHeight;
+
+	float playerXVel = 0.0f;
+	float playerYVel = 0.0f;
+	float grounded;
+
+	float playerVertexData[] = {
+		-halfPlayerWidth, -halfPlayerHeight, 0.0f, 0.5f,
+		-halfPlayerWidth,  halfPlayerHeight, 0.0f, 1.0f,
+		 halfPlayerWidth, -halfPlayerHeight, 1.0f, 0.5f,
+		 halfPlayerWidth,  halfPlayerHeight, 1.0f, 1.0f,
+		-halfPlayerWidth,  halfPlayerHeight, 0.0f, 1.0f,
+		 halfPlayerWidth, -halfPlayerHeight, 1.0f, 0.5f,
+	};
+
+	playerRenderer.setVertices(playerVertexData, 2, 12, GL_STATIC_DRAW);
 
 	tilemapRenderer.setFloat("screenX", windowWidth);
 	tilemapRenderer.setFloat("screenY", windowHeight);
-	backgroundRenderer.setFloat("screenX", windowWidth);
-	backgroundRenderer.setFloat("screenY", windowHeight);
 
 	glfwSwapInterval(1);
 	while (renderer.isRunning()) {
-		float dt = renderer.getDeltaTime();
-		float fps = 1.0f / dt;
+		tilemapRenderer.setFloat("lightConstant", 1.0f);
+		dt = renderer.getDeltaTime();
+		timeUntilFlicker -= dt;
+		if (flickerTimer > 0.0f) {
+			flickerTimer -= dt;
+			if (flickerTimer > 0.2f) {
+				tilemapRenderer.setFloat("lightConstant", 0.3f);
+			}
+			else if (flickerTimer > 0.1f) {
+				tilemapRenderer.setFloat("lightConstant", 1.5f);
+			}
+			else {
+				tilemapRenderer.setFloat("lightConstant", 0.1f);
+			}
+		}
 		renderer.fillScreen(0, 0, 0);
 
-		backgroundRenderer.setFloat("xOffset", x_offset);
-		backgroundRenderer.setFloat("yOffset", y_offset);
-		backgroundRenderer.draw(get<1>(backgroundVertexData));
+		if (timeUntilFlicker <= 0.0f) {
+			timeUntilFlicker = distribution(gen);
+			flickerTimer = flickerDuration;
+		}
 
-		tilemapRenderer.setFloat("xOffset", x_offset);
-		tilemapRenderer.setFloat("yOffset", y_offset);
+		tilemapRenderer.setFloat("xOffset", playerX);
+		tilemapRenderer.setFloat("yOffset", playerY);
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
+		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		//playerY += halfPlayerHeight * 0.1f;
+		indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
+		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+		grounded = false;
+		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
+			grounded = true;
+		}
+		if (renderer.getKeyDown(GLFW_KEY_LEFT_SHIFT) && grounded) {
+			crouching = true;
+		}
+		else if (grounded) {
+			if (!collide(tilemap[indexY + 1][indexXRightSmall]) && !collide(tilemap[indexY + 1][indexXLeftSmall])) {
+				crouching = false;
+			}
+		}
+		else {
+			crouching = false;
+		}
+		playerRenderer.setBool("isCrouching", crouching);
 
-		if (renderer.getKeyDown(GLFW_KEY_UP)) {
-			y_offset -= 1.0f * dt;
+		playerRenderer.draw(2);
+
+		if (renderer.getKeyDown(GLFW_KEY_A)) {
+			playerXVel += 1.0f * dt;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_DOWN)) {
-			y_offset += 1.0f * dt;
+		if (renderer.getKeyDown(GLFW_KEY_D)) {
+			playerXVel -= 1.0f * dt;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_LEFT)) {
-			x_offset -= 1.0f * dt;
+		if (renderer.getKeyDown(GLFW_KEY_SPACE)) {
+			jumpKeyCounter += 1;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_RIGHT)) {
-			x_offset += 1.0f * dt;
+		else {
+			jumpKeyCounter = 0;
 		}
+
+		relativeFPS = 1.0f / (dt * 60.0f);
+		playerXVel *= (powf(0.8, 1.0f / relativeFPS));
+		if (playerXVel > 0.1f) { playerXVel = 0.1f; }
+		if (playerXVel < -0.1f) { playerXVel = -0.1f; }
+		if (abs(playerXVel) <= 0.001f) { playerXVel = 0.0f; }
+
+
+
+		// Modify x position.
+		playerX += playerXVel * dt * 5.0f;
+
+		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexY = static_cast<int>((playerY + halfPlayerHeight * 0.8f) / blockHeight * -1.0f);
+		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+		indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.5f) / blockHeight * -1.0f);
+
+		// When moving right, check for collisions at the right index.
+		if (playerXVel < 0.0f) {
+			if (collide(tilemap[indexY][indexXRight])) {
+				playerX = halfPlayerWidth - indexXRight * blockWidth;
+				playerXVel = 0.0f;
+			}
+
+		}
+
+		// When moving left, check for collisions at the left index.
+		if (playerXVel > 0.0f) {
+			if (collide(tilemap[indexY][indexXLeft])) {
+				playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+				playerXVel = 0.0f;
+			}
+
+		}
+
+		if (!crouching) {
+			// When moving right, check for collisions at the right index.
+			if (playerXVel < 0.0f) {
+				if (collide(tilemap[indexHeadY][indexXRight])) {
+					playerX = halfPlayerWidth - indexXRight * blockWidth;
+					playerXVel = 0.0f;
+				}
+
+			}
+
+			// When moving left, check for collisions at the left index.
+			if (playerXVel > 0.0f) {
+				if (collide(tilemap[indexHeadY][indexXLeft])) {
+					playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+					playerXVel = 0.0f;
+				}
+			}
+
+			// Check the middle of the player for finer collisions.
+			// When moving right, check for collisions at the right index.
+			if (playerXVel < 0.0f) {
+				if (collide(tilemap[indexMiddle][indexXRight])) {
+					playerX = halfPlayerWidth - indexXRight * blockWidth;
+					playerXVel = 0.0f;
+				}
+
+			}
+
+			// When moving left, check for collisions at the left index.
+			if (playerXVel > 0.0f) {
+				if (collide(tilemap[indexMiddle][indexXLeft])) {
+					playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+					playerXVel = 0.0f;
+				}
+			}
+		}
+		// Move on the Y-axis
+		playerYVel += dt * 15.0f;
+		playerY += playerYVel * dt * 0.3f;
+
+		// Re-calculate what blocks the player is hitting.
+		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
+		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+		indexTop = static_cast<int>((playerY - (blockHeight - halfPlayerHeight) * 2.0f - blockHeight) / blockHeight * -1.0f);
+
+		// If player is travelling down, check if the block in which their feet are is solid.
+		if (playerYVel > 0.0f) {
+			if (collide(tilemap[indexY - 1][indexXRightSmall]) || collide(tilemap[indexY - 1][indexXLeftSmall])) {
+				playerY = -blockHeight * indexY - halfPlayerHeight;
+				playerYVel = 0.0f;
+			}
+		}
+
+		// If the player is travelling up, check if the block above their head is solid.
+		if (playerYVel < 0.0f) {
+			if (collide(tilemap[indexTop][indexXRightSmall]) || collide(tilemap[indexTop][indexXLeftSmall])) {
+				playerY = -blockHeight * (indexTop - 1);
+				playerYVel = 0.0f;
+			}
+
+		}
+		
+		// Jump check.
+		grounded = false;
+		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
+			grounded = true;
+		}
+		if (jumpKeyCounter == 1 && !crouching && grounded) {
+			if (!collide(tilemap[indexTop][indexXRightSmall]) && !collide(tilemap[indexTop][indexXLeftSmall])) {
+				playerYVel = -7.0f;
+			}
+		}
+		// Draw screen.
 		renderer.updateDisplay();
 	}
-
-	cout << "Hello, world!";
 	return 0;
 }

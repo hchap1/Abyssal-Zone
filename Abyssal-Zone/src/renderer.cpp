@@ -9,20 +9,41 @@
 #include <CUSTOM/tilemap.h>
 #include <CUSTOM/renderer.h>
 #include <filesystem>
-namespace fs = std::filesystem;
 using namespace std;
 
-tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, vector<vector<int>> lightLocations) {
+tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
     int numOfTriangles = 0;
 
-    float xScale = 300.0f / windowWidth;
-    float yScale = 300.0f / windowHeight;
+    float xScale = blockSize / windowWidth;
+    float yScale = blockSize / windowHeight;   
     float offset = (1.0f / tileTextureSize);
     float yOffset;
+    float xDist; 
+    float yDist;
+    float midpointX;
+    float midpointY;
+    float lightX;
+    float lightY;
+    float distanceX;
+    float distanceY;
+    float distance;
+    float smallestDistance;
+    float closestLightX;
+    float closestLightY;
 
+    vector<vector<float>> lightPositions;
+    for (int y = 0; y < tilemap.size(); y++) {
+        for (int x = 0; x < tilemap[0].size(); x++) {
+            if (tilemap[y][x] == 3) {
+                vector<float> lightPos = { x * xScale + xScale * 0.5f, y * yScale + yScale * 0.5f };
+                lightPositions.push_back(lightPos);
+            }
+        }
+    }
+    cout << "NUM LIGHTS: " << lightPositions.size() << endl;
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
-        totalSize += row.size() * 30 * sizeof(float);
+        totalSize += row.size() * 36 * sizeof(float);
     }
 
     float* vertexData = new float[totalSize];
@@ -35,51 +56,82 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
             yOffset = offset * tileType;
             if (tileType != 0) {
                 numOfTriangles += 2;
+
+                midpointX = width * xScale + xScale * 0.5f;
+                midpointY = height * yScale + yScale * 0.5f;
+                smallestDistance = -1.0f;
+                closestLightX = 100.0f;
+                closestLightY = 100.0f;
+
+                float counter = 0;
+
+                for (vector<float> lightPos : lightPositions) {
+                    counter++;
+                    lightX = lightPos[0];
+                    lightY = lightPos[1];
+                    distanceX = abs(midpointX - lightX);
+                    distanceY = abs(midpointY - lightY);
+                    distance = sqrtf(distanceX * distanceX + distanceY * distanceY);
+                    if (distance < smallestDistance || smallestDistance == -1.0f) {
+                        smallestDistance = distance;
+                        closestLightX = lightX;
+                        closestLightY = lightY;
+                    }
+                }
+
+                lightX = closestLightX;
+                lightY = closestLightY;
+
                 //Bottom left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
 
                 //Top left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
 
                 //Top right
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
 
                 //Top left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = tileType;
+                vertexData[index++] = lightX;
+                vertexData[index++] = lightY;
             }
         }
     }
-    cout << "NUM TRIANGLES: " << numOfTriangles << " WIDTH " << tilemap.size() << " HEIGHT " << tilemap[0].size() << endl;
     tuple<float*, int> dataReturn(vertexData, numOfTriangles);
     return dataReturn;
 }
@@ -117,15 +169,6 @@ RenderLayer::RenderLayer(std::vector<int> attributes, std::string shaderName, st
     //Load the image file
     int width, height, nrChannels;
     string texturePath = "assets/textures/" + textureName + ".png";
-    
-
-    bool doesExist = fs::exists(texturePath);
-    if (doesExist) {
-        cout << "FOUND " << texturePath << endl;
-    }
-    else {
-        cout << "COULD NOT FIND " << texturePath << endl;
-    }
 
     unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 
@@ -134,7 +177,7 @@ RenderLayer::RenderLayer(std::vector<int> attributes, std::string shaderName, st
     glGenerateMipmap(GL_TEXTURE_2D);
 
     //Free the image data to avoid memory leaks
-    stbi_image_free(data);
+    stbi_image_free(data);  
 
     //Create shader obj for this rendering layer
     string vertexPath = "assets/shaders/" + shaderName + "_vertex_shader.glsl";

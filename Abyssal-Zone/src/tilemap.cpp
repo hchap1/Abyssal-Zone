@@ -6,7 +6,7 @@
 #include <algorithm>
 using namespace std;
 
-tuple<vector<vector<int>>, vector<vector<int>>> loadTilemap(int levelID) {
+vector<vector<int>> loadTilemap(int levelID) {
     const string filename = "assets/levels/" + to_string(levelID) + ".tilemap";
     ifstream file(filename);
     if (!file.is_open()) {
@@ -34,35 +34,7 @@ tuple<vector<vector<int>>, vector<vector<int>>> loadTilemap(int levelID) {
     file.close();
 
     reverse(tilemap.begin(), tilemap.end());
-
-    const string bgfilename = "assets/levels/" + to_string(levelID) + ".background";
-    ifstream bgfile(bgfilename);
-    if (!bgfile.is_open()) {
-        cerr << "Error opening file: " << bgfilename << endl;
-    }
-
-    vector<vector<int>> bgTilemap;
-
-    string bgline;
-    while (getline(bgfile, bgline)) {
-        istringstream bgiss(bgline);
-        int bgnumber;
-        vector<int> bgrow;
-        while (bgiss >> bgnumber) {
-            bgrow.push_back(bgnumber);
-            cout << bgnumber;
-        }
-
-        cout << endl;
-
-        // Append row
-        bgTilemap.push_back(bgrow);
-    }
-
-    bgfile.close();
-
-    reverse(bgTilemap.begin(), bgTilemap.end());
-    return make_tuple(tilemap, bgTilemap);
+    return tilemap;
 }
 
 int* loadLevelData(int levelID) {
