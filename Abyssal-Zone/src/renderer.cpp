@@ -30,12 +30,13 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
     float smallestDistance;
     float closestLightX;
     float closestLightY;
+    float lightType;
 
     vector<vector<float>> lightPositions;
     for (int y = 0; y < tilemap.size(); y++) {
         for (int x = 0; x < tilemap[0].size(); x++) {
-            if (tilemap[y][x] == 3) {
-                vector<float> lightPos = { x * xScale + xScale * 0.5f, y * yScale + yScale * 0.5f };
+            if (tilemap[y][x] == 3 || tilemap[y][x] == 7) {
+                vector<float> lightPos = { x * xScale + xScale * 0.5f, y * yScale + yScale * 0.5f, static_cast<float>(tilemap[y][x]) };
                 lightPositions.push_back(lightPos);
             }
         }
@@ -43,7 +44,7 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
     cout << "NUM LIGHTS: " << lightPositions.size() << endl;
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
-        totalSize += row.size() * 36 * sizeof(float);
+        totalSize += row.size() * 48 * sizeof(float);
     }
 
     float* vertexData = new float[totalSize];
@@ -76,6 +77,7 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                         smallestDistance = distance;
                         closestLightX = lightX;
                         closestLightY = lightY;
+                        lightType = lightPos[2];
                     }
                 }
 
@@ -89,6 +91,8 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = yOffset;
                 vertexData[index++] = lightX;
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
 
                 //Top left
                 vertexData[index++] = width * xScale;
@@ -97,6 +101,8 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = yOffset - offset;
                 vertexData[index++] = lightX;
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
@@ -105,6 +111,8 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = yOffset;
                 vertexData[index++] = lightX;
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
 
                 //Top right
                 vertexData[index++] = width * xScale + xScale;
@@ -113,14 +121,18 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = yOffset - offset;
                 vertexData[index++] = lightX;
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
 
                 //Top left
                 vertexData[index++] = width * xScale;
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = lightX;
+                vertexData[index++] = lightX; 
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
 
                 //Bottom left
                 vertexData[index++] = width * xScale + xScale;
@@ -129,6 +141,8 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = yOffset;
                 vertexData[index++] = lightX;
                 vertexData[index++] = lightY;
+                vertexData[index++] = lightType;
+                vertexData[index++] = tileType;
             }
         }
     }

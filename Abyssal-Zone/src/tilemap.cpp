@@ -21,11 +21,11 @@ vector<vector<int>> loadTilemap(int levelID) {
         int number;
         vector<int> row;
         while (iss >> number) {
+            if (number > 7) {
+                number += 7;
+            }
             row.push_back(number);
-            cout << number;
         }
-
-        cout << endl;
 
         // Append row
         tilemap.push_back(row);

@@ -44,6 +44,8 @@ int main() {
 	float indexHeadY;
 	float indexTop;
 	float indexMiddle;
+	float animationCycle = 0.0f;
+	float cycleCount = 0.0f;
 
 	bool crouching = false;
 	int jumpKeyCounter = 0;
@@ -51,14 +53,17 @@ int main() {
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<int> distribution(1, 10);
+	uniform_int_distribution<int> distribution2(80, 100);
 
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	RenderLayer tilemapRenderer({ 2, 2, 2 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
+	RenderLayer tilemapRenderer({ 2, 2, 2, 1, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 
 	vector<vector<int>> tilemap = loadTilemap(1);
-	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 8, windowWidth, windowHeight, blockSize);
-	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 18, GL_STATIC_DRAW);
+	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
+	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 24, GL_STATIC_DRAW);
+	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
+	tilemapRenderer.setFloat("torchLight", 1.0f);
 
 	float playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	float playerY = -blockHeight * startY - halfPlayerHeight;
@@ -83,8 +88,13 @@ int main() {
 
 	glfwSwapInterval(1);
 	while (renderer.isRunning()) {
-		tilemapRenderer.setFloat("lightConstant", 1.0f);
+		
 		dt = renderer.getDeltaTime();
+		cycleCount += dt;
+		if (cycleCount > 0.2f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
+		if (animationCycle > 7.0f) { animationCycle = 0.0f; }
+		tilemapRenderer.setFloat("lightConstant", 1.0f);
+		tilemapRenderer.setFloat("frame", animationCycle);
 		timeUntilFlicker -= dt;
 		if (flickerTimer > 0.0f) {
 			flickerTimer -= dt;
