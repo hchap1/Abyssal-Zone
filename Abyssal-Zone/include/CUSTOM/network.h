@@ -23,7 +23,7 @@ public:
         connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
         recvThread = thread(&Client::recvData, this);
     }
-    void recvData(float* playerX, float* playerY) {
+    void recvData() {
         while (true) {
             char buffer[1024];
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
@@ -35,7 +35,7 @@ public:
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
                 if (!message.empty()) {
-                    playerX = &stof(message);
+                    *playerX = stof(message);
                 }
             }
             this_thread::sleep_for(chrono::milliseconds(100));
