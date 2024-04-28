@@ -899,6 +899,9 @@
     <ClInclude Include="include\GLM\vector_relational.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\CUSTOM\network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\GLM\detail\func_common.inl">

@@ -5,6 +5,8 @@
 #include "CUSTOM/renderer.h"
 #include <tuple>
 #include <random>
+#include "CUSTOM/network.h"
+
 using namespace std;
 
 int windowWidth = 1920;
@@ -67,6 +69,8 @@ int main() {
 
 	float playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	float playerY = -blockHeight * startY - halfPlayerHeight;
+
+	Client client("192.168.4.155", &playerX, &playerY);
 
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
