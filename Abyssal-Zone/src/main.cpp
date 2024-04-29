@@ -24,7 +24,7 @@ bool collide(int blockID) {
 	return false;
 }
 
-int main() {
+int game(string joinCode="NONE") {
 	float timeUntilFlicker = 3.0f;
 	float flickerDuration = 0.5f;
 	float flickerTimer = 0.0f;
@@ -60,6 +60,16 @@ int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	RenderLayer tilemapRenderer({ 2, 2, 2, 1, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
+	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
+
+	bool doMultiplayer = false;
+	thread recvThread;
+	Client client;
+	if (joinCode != "NONE") {
+		client = Client(joinCode, &multiplayerRenderer, halfPlayerWidth, halfPlayerHeight);
+		doMultiplayer = true;
+		recvThread = thread(&Client::recvData, &client);
+	}
 
 	vector<vector<int>> tilemap = loadTilemap(1);
 	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
@@ -69,8 +79,6 @@ int main() {
 
 	float playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	float playerY = -blockHeight * startY - halfPlayerHeight;
-
-	Client client("192.168.4.155", &playerX, &playerY);
 
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
@@ -277,5 +285,21 @@ int main() {
 		// Draw screen.
 		renderer.updateDisplay();
 	}
+	client.terminate();
+	if (doMultiplayer) {
+		recvThread.join();
+	}
+	return 0;
+}
+
+int amain() {
+	string joinCode;
+	cin >> joinCode;
+	game(joinCode);
+	return 0;
+}
+
+int main() {
+	decodePacket("1.01,2.02,goblin/0.0,0.0,egg|2.3,2.1,true/1.03,5.02,false");
 	return 0;
 }

@@ -41,7 +41,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
             }
         }
     }
-    cout << "NUM LIGHTS: " << lightPositions.size() << endl;
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
         totalSize += row.size() * 48 * sizeof(float);
