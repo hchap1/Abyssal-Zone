@@ -52,6 +52,7 @@ int game(string joinCode="NONE") {
 	bool crouching = false;
 	int jumpKeyCounter = 0;
 	int multiplayerTriangleCount = 0;
+	int multiplayerTriangleCountLocal = 0;
 
 	float playerX;
 	float playerY;
@@ -71,7 +72,7 @@ int game(string joinCode="NONE") {
 	thread sendThread;
 	Client client;
 	if (joinCode != "NONE") {
-		client = Client(joinCode, &multiplayerRenderer, halfPlayerWidth, halfPlayerHeight, &multiplayerTriangleCount, &playerX, &playerY, &crouching);
+		client = Client(joinCode, &multiplayerRenderer, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -140,7 +141,7 @@ int game(string joinCode="NONE") {
 		if (doMultiplayer) {
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
-			multiplayerRenderer.draw(multiplayerTriangleCount);
+			multiplayerRenderer.draw(2);
 		}
 
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);

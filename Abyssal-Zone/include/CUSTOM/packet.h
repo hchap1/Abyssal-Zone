@@ -19,19 +19,15 @@ vector<string> splitString(const string& str, char delimiter) {
 class Packet {
 public:
 	Packet(string encodedString) {
-        cout << "PACKET: " << encodedString << endl;
         encoded = encodedString;
         vector<string> packetData = splitString(encodedString, '|');
-        cout << "STRING SPLIT: SIZE: " << packetData.size() << endl;
         size_t delimCount = count(encodedString.begin(), encodedString.end(), '|');
         if (packetData.size() > 1) {
             string enemyData = packetData[0];
-            cout << "PACKET ACCEPTED." << endl;
             string playerData = packetData[1];
             vector<string> enemies = splitString(enemyData, '/');
             vector<string> players = splitString(playerData, '/');
             vector<string> data;
-            cout << "PLAYERCOUNT: " << players.size() << endl;
             for (string player : players) {
                 data = splitString(player, ',');
                 if (data.size() > 2) {

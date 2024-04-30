@@ -23,10 +23,8 @@ public:
     Client() {
 
     }
-    Client(std::string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, int* triRef, float* px, float* py, bool* ic) {
-        cout << "Beginning client initialization." << endl;
+    Client(std::string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic) {
         playerRenderer = multiplayerRenderer;
-        multiplayerTriangleCount = triRef;
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -58,22 +56,20 @@ public:
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
                 if (!message.empty()) {
-                    cout << "RECEIVED PACKET! DECONSTRUCTING." << endl;
                     Packet packet(message);
-                    int triangleCount = packet.constructPlayerVertices(playerRenderer, hpw, hph);
-                    *multiplayerTriangleCount = triangleCount;
+                    packet.constructPlayerVertices(playerRenderer, hpw, hph) / 2;
                 }
             }
-            this_thread::sleep_for(chrono::milliseconds(100));
         }
     }
+
     void terminate() {
         running = false;
     }
 
     void sendData() {
         while (running) {
-            this_thread::sleep_for(chrono::milliseconds(16));
+            this_thread::sleep_for(chrono::milliseconds(20));
             string message = to_string(*playerX) + "," + to_string(*playerY) + "," + to_string(*crouching);
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
@@ -87,7 +83,6 @@ private:
     bool running = true;
     float hpw;
     float hph;
-    int* multiplayerTriangleCount = 0;
     float* playerX;
     float* playerY;
     bool* crouching;
