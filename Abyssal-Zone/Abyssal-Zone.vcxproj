@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CUSTOM\network.h" />
+    <ClInclude Include="include\CUSTOM\packet.h" />
     <ClInclude Include="include\CUSTOM\tilemap.h" />
     <ClInclude Include="include\CUSTOM\renderer.h" />
     <ClInclude Include="include\CUSTOM\shader.h" />

@@ -51,6 +51,10 @@ int game(string joinCode="NONE") {
 
 	bool crouching = false;
 	int jumpKeyCounter = 0;
+	int multiplayerTriangleCount = 0;
+
+	float playerX;
+	float playerY;
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -64,11 +68,13 @@ int game(string joinCode="NONE") {
 
 	bool doMultiplayer = false;
 	thread recvThread;
+	thread sendThread;
 	Client client;
 	if (joinCode != "NONE") {
-		client = Client(joinCode, &multiplayerRenderer, halfPlayerWidth, halfPlayerHeight);
+		client = Client(joinCode, &multiplayerRenderer, halfPlayerWidth, halfPlayerHeight, &multiplayerTriangleCount, &playerX, &playerY, &crouching);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
+		sendThread = thread(&Client::sendData, &client);
 	}
 
 	vector<vector<int>> tilemap = loadTilemap(1);
@@ -77,8 +83,8 @@ int game(string joinCode="NONE") {
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	tilemapRenderer.setFloat("torchLight", 1.0f);
 
-	float playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
-	float playerY = -blockHeight * startY - halfPlayerHeight;
+	playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
+	playerY = -blockHeight * startY - halfPlayerHeight;
 
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
@@ -103,7 +109,7 @@ int game(string joinCode="NONE") {
 		
 		dt = renderer.getDeltaTime();
 		cycleCount += dt;
-		if (cycleCount > 0.2f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
+		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
 		if (animationCycle > 7.0f) { animationCycle = 0.0f; }
 		tilemapRenderer.setFloat("lightConstant", 1.0f);
 		tilemapRenderer.setFloat("frame", animationCycle);
@@ -130,6 +136,13 @@ int game(string joinCode="NONE") {
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
+
+		if (doMultiplayer) {
+			multiplayerRenderer.setFloat("xOffset", playerX);
+			multiplayerRenderer.setFloat("yOffset", playerY);
+			multiplayerRenderer.draw(multiplayerTriangleCount);
+		}
+
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
@@ -155,7 +168,6 @@ int game(string joinCode="NONE") {
 		playerRenderer.setBool("isCrouching", crouching);
 
 		playerRenderer.draw(2);
-
 		if (renderer.getKeyDown(GLFW_KEY_A)) {
 			playerXVel += 1.0f * dt;
 		}
@@ -292,14 +304,9 @@ int game(string joinCode="NONE") {
 	return 0;
 }
 
-int amain() {
+int main() {
 	string joinCode;
 	cin >> joinCode;
 	game(joinCode);
-	return 0;
-}
-
-int main() {
-	decodePacket("1.01,2.02,goblin/0.0,0.0,egg|2.3,2.1,true/1.03,5.02,false");
 	return 0;
 }

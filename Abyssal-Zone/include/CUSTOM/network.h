@@ -4,6 +4,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include "CUSTOM/renderer.h"
+#include "CUSTOM/packet.h"
 using namespace std;
 
 tuple<string, int> decodeIP(string encodedIP) {
@@ -21,11 +23,17 @@ public:
     Client() {
 
     }
-    Client(std::string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight) {
+    Client(std::string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, int* triRef, float* px, float* py, bool* ic) {
+        cout << "Beginning client initialization." << endl;
         playerRenderer = multiplayerRenderer;
+        multiplayerTriangleCount = triRef;
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
+        playerX = px;
+        playerY = py;
+        crouching = ic;
         tuple<string, int> serverData = decodeIP(joinCode);
+        cout << get<0>(serverData) << " @ " << get<1>(serverData) << endl;
         WSADATA wsaData;
         int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -40,6 +48,7 @@ public:
     void recvData() {
         while (running) {
             char buffer[1024];
+            cout << "LISTENING" << endl;
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
             if (bytesReceived == 0) {
                 cout << "Connection closed by server." << std::endl;
@@ -49,71 +58,24 @@ public:
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
                 if (!message.empty()) {
-                    decodePacket(message);
+                    cout << "RECEIVED PACKET! DECONSTRUCTING." << endl;
+                    Packet packet(message);
+                    int triangleCount = packet.constructPlayerVertices(playerRenderer, hpw, hph);
+                    *multiplayerTriangleCount = triangleCount;
                 }
             }
             this_thread::sleep_for(chrono::milliseconds(100));
         }
     }
-
     void terminate() {
         running = false;
     }
 
-    void decodePacket(string packet) {
-        // Packet: packet:ENEMYDATA|PLAYERDATA
-        // ENEMYDATA: x,y,ID/x,y,ID
-        // PLAYERDATA: x,y,crouching/x,y,crouching
-        vector<string> packetData = splitString(packet, '|');
-        string enemyData = packetData[0];
-        string playerData = packetData[1];
-        vector<string> enemies = splitString(enemyData, '/');
-        vector<string> players = splitString(playerData, '/');
-        vector<string> data;
-        const size_t playerArraySize = sizeof(players) * 30;
-        float playerVertexData[playerArraySize];
-        int index = 0;
-        for (string player : players) {
-            data = splitString(player, ',');
-            float xPos = stof(data[0]);
-            float yPos = stof(data[1]);
-            float crouching = 0.0f;
-            if (data[2] == "true") { crouching = 1.0f; }
-            playerVertexData[index++] = -hpw;
-            playerVertexData[index++] = -hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
-
-            playerVertexData[index++] = -hpw;
-            playerVertexData[index++] =  hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
-
-            playerVertexData[index++] =  hpw;
-            playerVertexData[index++] = -hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
-
-            playerVertexData[index++] =  hpw;
-            playerVertexData[index++] =  hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
-
-            playerVertexData[index++] = -hpw;
-            playerVertexData[index++] =  hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
-
-            playerVertexData[index++] =  hpw;
-            playerVertexData[index++] = -hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
+    void sendData() {
+        while (running) {
+            this_thread::sleep_for(chrono::milliseconds(16));
+            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + to_string(*crouching);
+            int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
 	
@@ -122,9 +84,11 @@ private:
 	string address;
 	SOCKET clientSocket;
     thread recvThread;
-    float* playerX;
-    float* playerY;
     bool running = true;
     float hpw;
     float hph;
+    int* multiplayerTriangleCount = 0;
+    float* playerX;
+    float* playerY;
+    bool* crouching;
 };
