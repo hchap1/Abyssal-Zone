@@ -56,8 +56,9 @@ public:
         encoded = "a,b,c/d,e,f|" + playerString;
 	}
     int constructPlayerVertices(RenderLayer* playerRenderer, float hpw, float hph) {
-        const size_t vertexDataSize = sizeof(playerCrouchingBools) * 30;
-        float playerVertexData[vertexDataSize];
+        size_t size = playerCrouchingBools.size();
+        const size_t vertexDataSize = size * 30;
+        float* playerVertexData = new float[vertexDataSize];
         int triangleCount = 0;
         for (int index = 0; index < playerCrouchingBools.size(); index++) {
             float xPos = playerXPositions[index];
@@ -103,6 +104,7 @@ public:
             playerVertexData[index++] = crouching;
         }
         playerRenderer->setVertices(playerVertexData, triangleCount, 30, GL_DYNAMIC_DRAW);
+        delete[] playerVertexData;
         return triangleCount;
 	}
 private:

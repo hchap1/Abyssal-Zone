@@ -8,23 +8,22 @@
 #include "CUSTOM/packet.h"
 using namespace std;
 
-tuple<string, int> decodeIP(string encodedIP) {
+tuple<string, int> decodeIP(string encoded) {
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    size_t dotLocation = alphabet.find(encodedIP[0]);
-    size_t portLocation = alphabet.find(encodedIP[1]);
-    string digit1 = encodedIP.substr(2, dotLocation - 2);
-    string digit2 = encodedIP.substr(dotLocation, (portLocation + 1) - dotLocation);
-    int port = stoi(encodedIP.substr(portLocation + 1));
-    return make_tuple("192.168." + digit1 + "." + digit2, port);
+    size_t dotIndex = alphabet.find(encoded[0]);
+    size_t portIndex = alphabet.find(encoded[1]);
+    string IPstr = encoded.substr(2);
+    string a = IPstr.substr(0, dotIndex);
+    string b = IPstr.substr(dotIndex, portIndex - 2);
+    int port = stoi(IPstr.substr(portIndex));
+    return make_tuple("192.168." + a + "." + b, port);
 }
 
 class Client {
 public:
-    Client() {
-
-    }
-    Client(std::string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic) {
-        playerRenderer = multiplayerRenderer;
+    Client() {}
+    Client(string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic){
+        playerRenderer = multiplayerRenderer; 
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -57,7 +56,7 @@ public:
                 string message(buffer);
                 if (!message.empty()) {
                     Packet packet(message);
-                    packet.constructPlayerVertices(playerRenderer, hpw, hph) / 2;
+                    int numTriangles = packet.constructPlayerVertices(playerRenderer, hpw, hph);
                 }
             }
         }

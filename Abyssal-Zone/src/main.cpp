@@ -6,6 +6,7 @@
 #include <tuple>
 #include <random>
 #include "CUSTOM/network.h"
+#include <mutex>
 
 using namespace std;
 
@@ -65,7 +66,9 @@ int game(string joinCode="NONE") {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	RenderLayer tilemapRenderer({ 2, 2, 2, 1, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
+
 	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
+	mutex multiplayerMutex;
 
 	bool doMultiplayer = false;
 	thread recvThread;
@@ -139,6 +142,7 @@ int game(string joinCode="NONE") {
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
 
 		if (doMultiplayer) {
+			lock_guard<mutex> guard(multiplayerMutex);
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
 			multiplayerRenderer.draw(2);
