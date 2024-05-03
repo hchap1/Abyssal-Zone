@@ -37,8 +37,7 @@ tuple<string, int> decodeIP(string encoded) {
 class Client {
 public:
     Client() {}
-    Client(string joinCode, RenderLayer* multiplayerRenderer, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic){
-        playerRenderer = multiplayerRenderer; 
+    Client(string joinCode, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic){
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -71,8 +70,10 @@ public:
                 string message(buffer);
                 if (!message.empty()) {
                     Packet packet(message);
-                    playerCount = packet.playerCount;
-                    packet.constructPlayerVertices(playerRenderer, hpw, hph);
+                    playerCrouchingBools = packet.playerCrouchingBools;
+                    playerXPositions = packet.playerXPositions;
+                    playerYPositions = packet.playerYPositions;
+                    hasVertexData = true;
                 }
             }
         }
@@ -93,9 +94,12 @@ public:
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
+
+    tuple<vector<float>, vector<float>, vector<bool>, bool> getVertexArray() {
+        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, hasVertexData);
+    }
 	
 private:
-    RenderLayer* playerRenderer;
 	string address;
 	SOCKET clientSocket;
     thread recvThread;
@@ -106,4 +110,10 @@ private:
     float* playerY;
     bool* crouching;
     int playerCount;
+    
+    vector<float> playerXPositions;
+    vector<float> playerYPositions;
+    vector<bool> playerCrouchingBools;
+
+    bool hasVertexData;
 };

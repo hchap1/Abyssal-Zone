@@ -18,6 +18,10 @@ vector<string> splitString(const string& str, char delimiter) {
 
 class Packet {
 public:
+    vector<float> playerXPositions;
+    vector<float> playerYPositions;
+    vector<bool> playerCrouchingBools;
+    string encoded;
     int playerCount = 0;
 	Packet(string encodedString) {
         encoded = encodedString;
@@ -26,11 +30,12 @@ public:
         if (packetData.size() > 1) {
             string enemyData = packetData[0];
             string playerData = packetData[1];
-            playerCount = playerData.size();
             vector<string> enemies = splitString(enemyData, '/');
             vector<string> players = splitString(playerData, '/');
             vector<string> data;
+            playerCount = 0;
             for (string player : players) {
+                playerCount += 1;
                 data = splitString(player, ',');
                 if (data.size() > 2) {
                     playerXPositions.push_back(stof(data[0]));
@@ -57,15 +62,16 @@ public:
         playerString.replace(playerString.length(), 1, "");
         encoded = "a,b,c/d,e,f|" + playerString;
 	}
-    int constructPlayerVertices(RenderLayer* playerRenderer, float hpw, float hph) {
+    tuple<float*, int> constructPlayerVertices(float hpw, float hph) {
         size_t size = playerCrouchingBools.size();
         const size_t vertexDataSize = size * 30;
         float* playerVertexData = new float[vertexDataSize];
         int triangleCount = 0;
-        for (int index = 0; index < playerCrouchingBools.size(); index++) {
-            float xPos = playerXPositions[index];
-            float yPos = playerYPositions[index];
-            bool isCrouching = playerCrouchingBools[index];
+        size_t index = 0;
+        for (int i = 0; i < playerCrouchingBools.size(); i++) {
+            float xPos = playerXPositions[i];
+            float yPos = playerYPositions[i];
+            bool isCrouching = playerCrouchingBools[i];
             float crouching = 0.0f;
             if (isCrouching) { crouching = 1.0f; }
             triangleCount += 2;
@@ -105,13 +111,8 @@ public:
             playerVertexData[index++] = 0.5f;
             playerVertexData[index++] = crouching;
         }
-        //playerRenderer->setVertices(playerVertexData, triangleCount, 30, GL_DYNAMIC_DRAW);
-        delete[] playerVertexData;
-        return triangleCount;
+        return make_tuple(playerVertexData, triangleCount);
 	}
 private:
-    vector<float> playerXPositions;
-    vector<float> playerYPositions;
-    vector<bool> playerCrouchingBools;
-    string encoded;
+    
 };
