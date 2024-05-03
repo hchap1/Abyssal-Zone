@@ -199,12 +199,14 @@ RenderLayer::RenderLayer(std::vector<int> attributes, std::string shaderName, st
 }
 
 void RenderLayer::setVertices(float* vertices, int numTriangles, int numFloatsPerTriangle, unsigned int mode) {
+    lock_guard<mutex> lock(mtx);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, numTriangles * numFloatsPerTriangle * sizeof(float), vertices, mode);
 }
 
 void RenderLayer::draw(int numTriangles) {
+    lock_guard<mutex> lock(mtx);
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, texture);
     shader.use();
@@ -212,11 +214,13 @@ void RenderLayer::draw(int numTriangles) {
 }
 
 void RenderLayer::setFloat(string name, float value) {
+    lock_guard<mutex> lock(mtx);
     shader.use();
     shader.setFloat(name, value);
 }
 
 void RenderLayer::setBool(string name, bool value) {
+    lock_guard<mutex> lock(mtx);
     shader.use();
     shader.setBool(name, value);
 }

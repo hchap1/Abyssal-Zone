@@ -6,7 +6,6 @@
 #include <tuple>
 #include <random>
 #include "CUSTOM/network.h"
-#include <mutex>
 
 using namespace std;
 
@@ -68,7 +67,6 @@ int game(string joinCode="NONE") {
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 
 	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
-	mutex multiplayerMutex;
 
 	bool doMultiplayer = false;
 	thread recvThread;
@@ -142,17 +140,16 @@ int game(string joinCode="NONE") {
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
 
 		if (doMultiplayer) {
-			lock_guard<mutex> guard(multiplayerMutex);
-			multiplayerRenderer.setFloat("xOffset", playerX);
-			multiplayerRenderer.setFloat("yOffset", playerY);
-			multiplayerRenderer.draw(2);
+			cout << "PLAYER COUNT " << client.getPlayerCount() << endl;
+			//multiplayerRenderer.setFloat("xOffset", playerX);
+			//multiplayerRenderer.setFloat("yOffset", playerY);
+			//multiplayerRenderer.draw(2);
 		}
 
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
 		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-		//playerY += halfPlayerHeight * 0.1f;
 		indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
 		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
 		grounded = false;

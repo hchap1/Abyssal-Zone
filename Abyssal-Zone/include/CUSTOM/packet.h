@@ -18,6 +18,7 @@ vector<string> splitString(const string& str, char delimiter) {
 
 class Packet {
 public:
+    int playerCount = 0;
 	Packet(string encodedString) {
         encoded = encodedString;
         vector<string> packetData = splitString(encodedString, '|');
@@ -25,6 +26,7 @@ public:
         if (packetData.size() > 1) {
             string enemyData = packetData[0];
             string playerData = packetData[1];
+            playerCount = playerData.size();
             vector<string> enemies = splitString(enemyData, '/');
             vector<string> players = splitString(playerData, '/');
             vector<string> data;
@@ -103,7 +105,7 @@ public:
             playerVertexData[index++] = 0.5f;
             playerVertexData[index++] = crouching;
         }
-        playerRenderer->setVertices(playerVertexData, triangleCount, 30, GL_DYNAMIC_DRAW);
+        //playerRenderer->setVertices(playerVertexData, triangleCount, 30, GL_DYNAMIC_DRAW);
         delete[] playerVertexData;
         return triangleCount;
 	}

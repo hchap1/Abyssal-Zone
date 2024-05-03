@@ -8,14 +8,29 @@
 #include "CUSTOM/packet.h"
 using namespace std;
 
+string encodeIP(string IP, int port) {
+    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string ID = IP.substr(8);
+    size_t dotIndex = ID.find('.');
+    string a = ID.substr(0, dotIndex);
+    string b = ID.substr(dotIndex + 1);
+    size_t portIndex = ID.length() - 1;
+    string aLetter = "";
+    aLetter += alphabet[dotIndex];
+    string bLetter = "";
+    bLetter += alphabet[portIndex];
+    return aLetter + bLetter + a + b + to_string(port);
+}
+
 tuple<string, int> decodeIP(string encoded) {
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     size_t dotIndex = alphabet.find(encoded[0]);
     size_t portIndex = alphabet.find(encoded[1]);
     string IPstr = encoded.substr(2);
-    string a = IPstr.substr(0, dotIndex);
-    string b = IPstr.substr(dotIndex, portIndex - 2);
     int port = stoi(IPstr.substr(portIndex));
+    IPstr.replace(portIndex, IPstr.length() - portIndex, "");
+    string a = IPstr.substr(0, dotIndex);
+    string b = IPstr.substr(dotIndex);
     return make_tuple("192.168." + a + "." + b, port);
 }
 
@@ -56,7 +71,8 @@ public:
                 string message(buffer);
                 if (!message.empty()) {
                     Packet packet(message);
-                    int numTriangles = packet.constructPlayerVertices(playerRenderer, hpw, hph);
+                    playerCount = packet.playerCount;
+                    packet.constructPlayerVertices(playerRenderer, hpw, hph);
                 }
             }
         }
@@ -66,10 +82,14 @@ public:
         running = false;
     }
 
+    int getPlayerCount() { return playerCount; }
+
     void sendData() {
         while (running) {
             this_thread::sleep_for(chrono::milliseconds(20));
-            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + to_string(*crouching);
+            string crString = "false";
+            if (*crouching) { crString = "true"; }
+            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString;
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
@@ -85,4 +105,5 @@ private:
     float* playerX;
     float* playerY;
     bool* crouching;
+    int playerCount;
 };

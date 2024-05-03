@@ -5,7 +5,7 @@
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
 #include "CUSTOM/shader.h"
-
+#include <mutex>
 using namespace std;
 
 tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize);
@@ -26,6 +26,7 @@ private:
     unsigned int texture;
     int step;
     Shader shader;
+    mutex mtx;
 };
 
 class Renderer {
