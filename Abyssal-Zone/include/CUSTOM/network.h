@@ -59,7 +59,6 @@ public:
     void recvData() {
         while (running) {
             char buffer[1024];
-            cout << "LISTENING" << endl;
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
             if (bytesReceived == 0) {
                 cout << "Connection closed by server." << std::endl;

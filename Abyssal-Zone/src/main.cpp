@@ -141,7 +141,58 @@ int game(string joinCode="NONE") {
 		if (doMultiplayer) {
 			tuple<vector<float>, vector<float>, vector<bool>, bool> data = client.getVertexArray();
 			if (get<3>(data)) {
-				cout << "SIZE: " << get<0>(data).size() << endl;
+				vector<float> pxp = get<0>(data);
+				vector<float> pyp = get<1>(data);
+				vector<bool>  pcb = get<2>(data);
+				size_t size = pxp.size() * 30;
+				size_t triangleCount = 0;
+				float* multiplayerVertexArray = new float[size];
+				size_t index = 0;
+				for (int i = 0; i < pxp.size(); i++) {
+					float xPos = pxp[i];
+					float yPos = pyp[i];
+					
+					float crouching = 0.0f;
+					if (pcb[i]) { crouching = 1.0f; }
+					triangleCount += 2;
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+				}
+				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 15, GL_DYNAMIC_DRAW);
+				multiplayerRenderer.draw(triangleCount);
 			}
 		}
 

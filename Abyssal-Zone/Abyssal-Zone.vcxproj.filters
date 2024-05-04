@@ -1321,6 +1321,8 @@
     <None Include="assets\levels\0.tilemap" />
     <None Include="assets\shaders\player_fragment_shader.glsl" />
     <None Include="assets\shaders\player_vertex_shader.glsl" />
+    <None Include="assets\shaders\multiplayer_fragment_shader.glsl" />
+    <None Include="assets\shaders\multiplayer_vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\tile_texture.png">

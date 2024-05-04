@@ -25,6 +25,7 @@ public:
     int playerCount = 0;
 	Packet(string encodedString) {
         encoded = encodedString;
+        cout << "PACKET: " << encoded << endl;
         vector<string> packetData = splitString(encodedString, '|');
         size_t delimCount = count(encodedString.begin(), encodedString.end(), '|');
         if (packetData.size() > 1) {
@@ -40,6 +41,7 @@ public:
                 if (data.size() > 2) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
+                    cout << "RECV: PLAYER @ (" << data[0] << ", " << data[1] << ")" << endl;
                     if (data[2] == "true") { playerCrouchingBools.push_back(true); }
                     else { playerCrouchingBools.push_back(false); }
                 }
@@ -65,7 +67,7 @@ public:
     tuple<float*, int> constructPlayerVertices(float hpw, float hph) {
         size_t size = playerCrouchingBools.size();
         const size_t vertexDataSize = size * 30;
-        float* playerVertexData = new float[vertexDataSize];
+        float* multiplayerVertexArray = new float[vertexDataSize];
         int triangleCount = 0;
         size_t index = 0;
         for (int i = 0; i < playerCrouchingBools.size(); i++) {
@@ -75,43 +77,43 @@ public:
             float crouching = 0.0f;
             if (isCrouching) { crouching = 1.0f; }
             triangleCount += 2;
-            playerVertexData[index++] = xPos - hpw;
-            playerVertexData[index++] = yPos + hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos - hpw;
+            multiplayerVertexArray[index++] = yPos + hph;
+            multiplayerVertexArray[index++] = 0.0f;
+            multiplayerVertexArray[index++] = 0.5f;
+            multiplayerVertexArray[index++] = crouching;
 
-            playerVertexData[index++] = xPos - hpw;
-            playerVertexData[index++] = yPos + hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos - hpw;
+            multiplayerVertexArray[index++] = yPos + hph;
+            multiplayerVertexArray[index++] = 0.0f;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = crouching;
 
-            playerVertexData[index++] = xPos + hpw;
-            playerVertexData[index++] = yPos - hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos + hpw;
+            multiplayerVertexArray[index++] = yPos - hph;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = 0.5f;
+            multiplayerVertexArray[index++] = crouching;
 
-            playerVertexData[index++] = xPos + hpw;
-            playerVertexData[index++] = yPos + hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos + hpw;
+            multiplayerVertexArray[index++] = yPos + hph;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = crouching;
 
-            playerVertexData[index++] = xPos - hpw;
-            playerVertexData[index++] = yPos + hph;
-            playerVertexData[index++] = 0.0f;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos - hpw;
+            multiplayerVertexArray[index++] = yPos + hph;
+            multiplayerVertexArray[index++] = 0.0f;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = crouching;
 
-            playerVertexData[index++] = xPos + hpw;
-            playerVertexData[index++] = yPos - hph;
-            playerVertexData[index++] = 1.0f;
-            playerVertexData[index++] = 0.5f;
-            playerVertexData[index++] = crouching;
+            multiplayerVertexArray[index++] = xPos + hpw;
+            multiplayerVertexArray[index++] = yPos - hph;
+            multiplayerVertexArray[index++] = 1.0f;
+            multiplayerVertexArray[index++] = 0.5f;
+            multiplayerVertexArray[index++] = crouching;
         }
-        return make_tuple(playerVertexData, triangleCount);
+        return make_tuple(multiplayerVertexArray, triangleCount);
 	}
 private:
     
