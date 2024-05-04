@@ -138,7 +138,7 @@ int game(string joinCode="NONE") {
 		tilemapRenderer.setFloat("yOffset", playerY);
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
 
-		if (doMultiplayer) {
+		if (doMultiplayer && false) {
 			tuple<vector<float>, vector<float>, vector<bool>, bool> data = client.getVertexArray();
 			if (get<3>(data)) {
 				vector<float> pxp = get<0>(data);
