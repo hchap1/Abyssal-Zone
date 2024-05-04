@@ -62,7 +62,11 @@ public:
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
             if (bytesReceived == 0) {
                 cout << "Connection closed by server." << std::endl;
-                break;
+                running = false;
+            }
+            else if (bytesReceived == -1) {
+                cout << "CONNECTION COMMITTED SUICIDE. ERR: " << WSAGetLastError() << endl;
+                running = false;
             }
             else {
                 buffer[bytesReceived] = '\0';
@@ -86,11 +90,12 @@ public:
 
     void sendData() {
         while (running) {
-            this_thread::sleep_for(chrono::milliseconds(20));
+            this_thread::sleep_for(chrono::milliseconds(16));
             string crString = "false";
             if (*crouching) { crString = "true"; }
             string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString;
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            cout << "BYTES SENT" << bytesSent << endl;
         }
     }
 
