@@ -40,7 +40,7 @@ public:
                 if (data.size() > 2) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
-                    if (data[2] == "true") { playerCrouchingBools.push_back(true); }
+                    if (data[2] == "1") { playerCrouchingBools.push_back(true); }
                     else { playerCrouchingBools.push_back(false); }
                 }
             }

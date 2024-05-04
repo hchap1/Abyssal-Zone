@@ -138,7 +138,9 @@ int game(string joinCode="NONE") {
 		tilemapRenderer.setFloat("yOffset", playerY);
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
 
-		if (doMultiplayer && false) {
+		if (doMultiplayer) {
+			multiplayerRenderer.setFloat("xOffset", playerX);
+			multiplayerRenderer.setFloat("yOffset", playerY);
 			tuple<vector<float>, vector<float>, vector<bool>, bool> data = client.getVertexArray();
 			if (get<3>(data)) {
 				vector<float> pxp = get<0>(data);
@@ -149,8 +151,8 @@ int game(string joinCode="NONE") {
 				float* multiplayerVertexArray = new float[size];
 				size_t index = 0;
 				for (int i = 0; i < pxp.size(); i++) {
-					float xPos = pxp[i];
-					float yPos = pyp[i];
+					float xPos = -pxp[i];
+					float yPos = -pyp[i];
 					
 					float crouching = 0.0f;
 					if (pcb[i]) { crouching = 1.0f; }
@@ -158,13 +160,13 @@ int game(string joinCode="NONE") {
 					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
 					multiplayerVertexArray[index++] = 0.0f;
-					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = 1.0f;
 					multiplayerVertexArray[index++] = crouching;
 
 					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
 					multiplayerVertexArray[index++] = 0.0f;
-					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = 0.5f;
 					multiplayerVertexArray[index++] = crouching;
 
 					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
