@@ -75,8 +75,12 @@ int game(string joinCode, Renderer* renderer) {
 	thread recvThread;
 	thread sendThread;
 	Client client;
+	string ID;
 	if (joinCode != "NONE") {
-		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching);
+		cout << "USERNAME?" << endl;
+		cout << "-> ";
+		cin >> ID;
+		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, ID);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -144,18 +148,15 @@ int game(string joinCode, Renderer* renderer) {
 		if (doMultiplayer) {
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
-			tuple<vector<float>, vector<float>, vector<bool>, bool> data = client.getVertexArray();
-			if (get<3>(data)) {
-				vector<float> pxp = get<0>(data);
-				vector<float> pyp = get<1>(data);
-				vector<bool>  pcb = get<2>(data);
+			tuple<vector<float>, vector<float>, vector<bool>, vector<string>, bool> data = client.getVertexArray();
+			if (get<4>(data)) {
+				vector<float>  pxp = get<0>(data);
+				vector<float>  pyp = get<1>(data);
+				vector<bool>   pcb = get<2>(data);
+				vector<string> pid = get<3>(data);
 				size_t validCount = 0;
 				for (int i = 0; i < pxp.size(); i++) {
-					float xPos = pxp[i];
-					float yPos = pyp[i];
-					float xDist = xPos - playerX;
-					float yDist = yPos - playerY;
-					if (sqrtf(xDist * xDist + yDist * yDist) > blockWidth / 10) {
+					if (pid[i] != ID) {
 						validCount += 1;
 					}
 				}
@@ -166,11 +167,9 @@ int game(string joinCode, Renderer* renderer) {
 				for (int i = 0; i < pxp.size(); i++) {
 					float xPos = -pxp[i];
 					float yPos = -pyp[i];
-					float xDist = -xPos - playerX;
-					float yDist = -yPos - playerY;
 					float crouching = 0.0f;
 					if (pcb[i]) { crouching = 1.0f; }
-					if (sqrtf(xDist * xDist + yDist * yDist) > blockWidth / 10) {
+					if (pid[i] != ID) {
 						triangleCount += 2;
 						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;

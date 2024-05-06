@@ -37,7 +37,7 @@ tuple<string, int> decodeIP(string encoded) {
 class Client {
 public:
     Client() {}
-    Client(string joinCode, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic){
+    Client(string joinCode, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic, string ID) : ID(ID){
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -65,7 +65,7 @@ public:
                 running = false;
             }
             else if (bytesReceived == -1) {
-                cout << "CONNECTION COMMITTED SUICIDE. ERR: " << WSAGetLastError() << endl;
+                cout << "Connection closed. ERR: " << WSAGetLastError() << endl;
                 running = false;
             }
             else {
@@ -76,6 +76,7 @@ public:
                     playerCrouchingBools = packet.playerCrouchingBools;
                     playerXPositions = packet.playerXPositions;
                     playerYPositions = packet.playerYPositions;
+                    playerIDs = packet.playerIDs;
                     hasVertexData = true;
                 }
             }
@@ -93,7 +94,7 @@ public:
             this_thread::sleep_for(chrono::milliseconds(16));
             string crString = "false";
             if (*crouching) { crString = "true"; }
-            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString;
+            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + ID;
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
@@ -106,6 +107,7 @@ private:
 	string address;
 	SOCKET clientSocket;
     thread recvThread;
+    string ID;
     bool running = true;
     float hpw;
     float hph;
@@ -117,6 +119,7 @@ private:
     vector<float> playerXPositions;
     vector<float> playerYPositions;
     vector<bool> playerCrouchingBools;
+    vector<string> playerIDs;
 
     bool hasVertexData;
 };
