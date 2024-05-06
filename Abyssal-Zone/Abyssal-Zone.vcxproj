@@ -141,10 +141,10 @@
     <ClCompile Include="include\GLM\detail\glm.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\tilemap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\CUSTOM\GLGUI.h" />
     <ClInclude Include="include\CUSTOM\network.h" />
     <ClInclude Include="include\CUSTOM\packet.h" />
     <ClInclude Include="include\CUSTOM\tilemap.h" />
@@ -585,6 +585,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\blocks.png" />
+    <Image Include="assets\textures\buttons.png" />
     <Image Include="assets\textures\player_texture.png" />
     <Image Include="assets\textures\tile_texture.png" />
   </ItemGroup>

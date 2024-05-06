@@ -21,9 +21,6 @@
     <ClCompile Include="src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="include\GLM\detail\glm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -905,6 +902,9 @@
     <ClInclude Include="include\CUSTOM\packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\CUSTOM\GLGUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\GLM\detail\func_common.inl">
@@ -1332,6 +1332,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\textures\player_texture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\buttons.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

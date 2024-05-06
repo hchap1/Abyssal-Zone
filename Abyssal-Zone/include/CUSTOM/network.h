@@ -95,7 +95,6 @@ public:
             if (*crouching) { crString = "true"; }
             string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString;
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
-            cout << "BYTES SENT" << bytesSent << endl;
         }
     }
 

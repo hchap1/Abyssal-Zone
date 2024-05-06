@@ -24,7 +24,11 @@ bool collide(int blockID) {
 	return false;
 }
 
-int game(string joinCode="NONE") {
+int GUI(Renderer* renderer) { 
+	return 0;
+}
+
+int game(string joinCode, Renderer* renderer) {
 	float timeUntilFlicker = 3.0f;
 	float flickerDuration = 0.5f;
 	float flickerTimer = 0.0f;
@@ -55,16 +59,16 @@ int game(string joinCode="NONE") {
 
 	float playerX;
 	float playerY;
+	
+	dt = renderer->getDeltaTime();
 
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<int> distribution(1, 10);
 	uniform_int_distribution<int> distribution2(80, 100);
 
-	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	RenderLayer tilemapRenderer({ 2, 2, 2, 1, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
-
 	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
 
 	bool doMultiplayer = false;
@@ -77,7 +81,6 @@ int game(string joinCode="NONE") {
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
-
 	vector<vector<int>> tilemap = loadTilemap(1);
 	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 24, GL_STATIC_DRAW);
@@ -106,9 +109,9 @@ int game(string joinCode="NONE") {
 	tilemapRenderer.setFloat("screenY", windowHeight);
 
 	glfwSwapInterval(1);
-	while (renderer.isRunning()) {
+	while (renderer->isRunning()) {
 		
-		dt = renderer.getDeltaTime();
+		dt = renderer->getDeltaTime();
 		cycleCount += dt;
 		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
 		if (animationCycle > 7.0f) { animationCycle = 0.0f; }
@@ -127,7 +130,7 @@ int game(string joinCode="NONE") {
 				tilemapRenderer.setFloat("lightConstant", 0.1f);
 			}
 		}
-		renderer.fillScreen(0, 0, 0);
+		renderer->fillScreen(0, 0, 0);
 
 		if (timeUntilFlicker <= 0.0f) {
 			timeUntilFlicker = distribution(gen);
@@ -146,58 +149,71 @@ int game(string joinCode="NONE") {
 				vector<float> pxp = get<0>(data);
 				vector<float> pyp = get<1>(data);
 				vector<bool>  pcb = get<2>(data);
-				size_t size = pxp.size() * 30;
+				size_t validCount = 0;
+				for (int i = 0; i < pxp.size(); i++) {
+					float xPos = pxp[i];
+					float yPos = pyp[i];
+					float xDist = xPos - playerX;
+					float yDist = yPos - playerY;
+					if (sqrtf(xDist * xDist + yDist * yDist) > blockWidth / 10) {
+						validCount += 1;
+					}
+				}
+				size_t size = validCount * 30;
 				size_t triangleCount = 0;
 				float* multiplayerVertexArray = new float[size];
 				size_t index = 0;
 				for (int i = 0; i < pxp.size(); i++) {
 					float xPos = -pxp[i];
 					float yPos = -pyp[i];
-					
+					float xDist = -xPos - playerX;
+					float yDist = -yPos - playerY;
 					float crouching = 0.0f;
 					if (pcb[i]) { crouching = 1.0f; }
-					triangleCount += 2;
-					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-					multiplayerVertexArray[index++] = 0.0f;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = crouching;
+					if (sqrtf(xDist * xDist + yDist * yDist) > blockWidth / 10) {
+						triangleCount += 2;
+						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+						multiplayerVertexArray[index++] = 0.0f;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = crouching;
 
-					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-					multiplayerVertexArray[index++] = 0.0f;
-					multiplayerVertexArray[index++] = 0.5f;
-					multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+						multiplayerVertexArray[index++] = 0.0f;
+						multiplayerVertexArray[index++] = 0.5f;
+						multiplayerVertexArray[index++] = crouching;
 
-					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = 0.5f;
-					multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = 0.5f;
+						multiplayerVertexArray[index++] = crouching;
 
-					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = crouching;
 
-					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-					multiplayerVertexArray[index++] = 0.0f;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+						multiplayerVertexArray[index++] = 0.0f;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = crouching;
 
-					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-					multiplayerVertexArray[index++] = 1.0f;
-					multiplayerVertexArray[index++] = 0.5f;
-					multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = 0.5f;
+						multiplayerVertexArray[index++] = crouching;
+					}
 				}
 				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 15, GL_DYNAMIC_DRAW);
 				multiplayerRenderer.draw(triangleCount);
+				delete[] multiplayerVertexArray;
 			}
 		}
-
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
@@ -208,7 +224,7 @@ int game(string joinCode="NONE") {
 		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
 			grounded = true;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_LEFT_SHIFT) && grounded) {
+		if (renderer->getKeyDown(GLFW_KEY_LEFT_SHIFT) && grounded) {
 			crouching = true;
 		}
 		else if (grounded) {
@@ -222,13 +238,13 @@ int game(string joinCode="NONE") {
 		playerRenderer.setBool("isCrouching", crouching);
 
 		playerRenderer.draw(2);
-		if (renderer.getKeyDown(GLFW_KEY_A)) {
+		if (renderer->getKeyDown(GLFW_KEY_A)) {
 			playerXVel += 1.0f * dt;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_D)) {
+		if (renderer->getKeyDown(GLFW_KEY_D)) {
 			playerXVel -= 1.0f * dt;
 		}
-		if (renderer.getKeyDown(GLFW_KEY_SPACE)) {
+		if (renderer->getKeyDown(GLFW_KEY_SPACE)) {
 			jumpKeyCounter += 1;
 		}
 		else {
@@ -245,7 +261,6 @@ int game(string joinCode="NONE") {
 
 		// Modify x position.
 		playerX += playerXVel * dt * 5.0f;
-
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
@@ -311,7 +326,6 @@ int game(string joinCode="NONE") {
 		// Move on the Y-axis
 		playerYVel += dt * 15.0f;
 		playerY += playerYVel * dt * 0.3f;
-
 		// Re-calculate what blocks the player is hitting.
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
@@ -337,7 +351,7 @@ int game(string joinCode="NONE") {
 			}
 
 		}
-		
+
 		// Jump check.
 		grounded = false;
 		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
@@ -349,7 +363,7 @@ int game(string joinCode="NONE") {
 			}
 		}
 		// Draw screen.
-		renderer.updateDisplay();
+		renderer->updateDisplay();
 	}
 	client.terminate();
 	if (doMultiplayer) {
@@ -359,8 +373,9 @@ int game(string joinCode="NONE") {
 }
 
 int main() {
+	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	string joinCode;
 	cin >> joinCode;
-	game(joinCode);
+	game(joinCode, &renderer);
 	return 0;
 }
