@@ -6,6 +6,7 @@
 #include <tuple>
 #include <random>
 #include "CUSTOM/network.h"
+#include "CUSTOM/GLGUI.h"
 
 using namespace std;
 
@@ -23,10 +24,21 @@ bool collide(int blockID) {
 	}
 	return false;
 }
+/*
+int GUI(Renderer* renderer) {
+	bool running = true;
+	vector<Button> homepage;
+	homepage.push_back(Button(0.1f, 0.1f, 0.0f, 0.1f));
+	homepage.push_back(Button(0.5f, 0.5f, 1.0f, 0.1f));
+	Window window(homepage, "buttons.png", 6, renderer);
 
-int GUI(Renderer* renderer) { 
+	while (running) {
+		renderer->fillScreen(255, 255, 255);
+		window.draw();
+		renderer->updateDisplay();
+	}
 	return 0;
-}
+}*/
 
 int game(string joinCode, Renderer* renderer) {
 	float timeUntilFlicker = 3.0f;
@@ -113,6 +125,7 @@ int game(string joinCode, Renderer* renderer) {
 	tilemapRenderer.setFloat("screenY", windowHeight);
 
 	glfwSwapInterval(1);
+	dt = renderer->getDeltaTime();
 	while (renderer->isRunning()) {
 		
 		dt = renderer->getDeltaTime();
@@ -372,9 +385,11 @@ int game(string joinCode, Renderer* renderer) {
 }
 
 int main() {
-	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
+	
+	//GUI(&renderer);
 	string joinCode;
 	cin >> joinCode;
+	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	game(joinCode, &renderer);
 	return 0;
 }

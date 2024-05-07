@@ -99,8 +99,8 @@ public:
         }
     }
 
-    tuple<vector<float>, vector<float>, vector<bool>, bool> getVertexArray() {
-        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, hasVertexData);
+    tuple<vector<float>, vector<float>, vector<bool>, vector<string>, bool> getVertexArray() {
+        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerIDs, hasVertexData);
     }
 	
 private:

@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include "CUSTOM/shader.h"
 #include <mutex>
+#include "CUSTOM/GLGUI.h"
 using namespace std;
 
 tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
