@@ -16,8 +16,9 @@ public:
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
     Shader() {}
+    const char* path;
 
-    Shader(const char* vertexPath, const char* fragmentPath)
+    Shader(const char* vertexPath, const char* fragmentPath) : path(vertexPath)
     {
 
         // 1. retrieve the vertex/fragment source code from filePath
@@ -46,7 +47,7 @@ public:
         }
         catch (std::ifstream::failure& e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ [" << vertexPath << "] " << e.what() << std::endl;
             std::cerr << "Exception bitmask: " << e.code().value() << std::endl;
         }
         
@@ -125,6 +126,7 @@ private:
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
                 std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                std::cout << path << std::endl;
             }
         }
         else

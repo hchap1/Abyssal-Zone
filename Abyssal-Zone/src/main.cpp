@@ -24,23 +24,79 @@ bool collide(int blockID) {
 	}
 	return false;
 }
-/*
-int GUI(Renderer* renderer) {
-	bool running = true;
-	vector<Button> homepage;
-	homepage.push_back(Button(0.1f, 0.1f, 0.0f, 0.1f));
-	homepage.push_back(Button(0.5f, 0.5f, 1.0f, 0.1f));
-	Window window(homepage, "buttons.png", 6, renderer);
 
+char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
+	if (glfwKeyCode >= GLFW_KEY_A && glfwKeyCode <= GLFW_KEY_H) {
+		return static_cast<char>('A' + (glfwKeyCode - GLFW_KEY_A));
+	}
+	else if (glfwKeyCode >= GLFW_KEY_0 && glfwKeyCode <= GLFW_KEY_9) {
+		return static_cast<char>('0' + (glfwKeyCode - GLFW_KEY_0));
+	}
+	else {
+		return '\0';
+	}
+}
+
+tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Text> texts, string pageID) {
+
+	bool running = true;
+	MenuWindow window(buttons, 8, texts, renderer);
+	vector<int> keyTracker;
+	int backspaceTracker = 0;
+	vector<int> glfwKeyCodes;
+	for (int i = GLFW_KEY_A; i <= GLFW_KEY_H; ++i) {
+		glfwKeyCodes.push_back(i);
+		keyTracker.push_back(0);
+	}
+	for (int i = GLFW_KEY_0; i <= GLFW_KEY_9; ++i) {
+		keyTracker.push_back(0);
+		glfwKeyCodes.push_back(i);
+	}
+
+	glfwSwapInterval(1);
 	while (running) {
+		bool mouseDown = renderer->mouseWasJustClicked();
+		if (pageID == "multiplayer" || pageID == "join") {
+			for (int i = 0; i < keyTracker.size(); i++) {
+				if (renderer->getKeyDown(glfwKeyCodes[i])) {
+					keyTracker[i]++;
+				}
+				else {
+					keyTracker[i] = 0;
+				}
+				if (keyTracker[i] == 1) {
+					window.texts[0].text += getCharacterFromGLFWKeyCode(glfwKeyCodes[i]);
+				}
+			}
+			if (renderer->getKeyDown(GLFW_KEY_BACKSPACE)) {
+				backspaceTracker++;
+			}
+			else {
+				backspaceTracker = 0;
+			}
+			if (backspaceTracker == 1) {
+				window.texts[0].text = window.texts[0].text.substr(0, window.texts[0].text.size() - 1);
+			}
+
+		}
 		renderer->fillScreen(255, 255, 255);
-		window.draw();
+		int buttonPressed = window.draw(renderer->mouseX, renderer->mouseY);
+		if (buttonPressed != -1) {
+			if (mouseDown) {
+				if (pageID == "multiplayer" || pageID == "join") {
+					return make_tuple(buttonPressed, window.texts[0].text);
+				}
+				else {
+					return make_tuple(buttonPressed, "");
+				}
+			}
+		}
 		renderer->updateDisplay();
 	}
-	return 0;
-}*/
+	return make_tuple(-1, "");
+}
 
-int game(string joinCode, Renderer* renderer) {
+int game(string joinCode, Renderer* renderer, string ID) {
 	float timeUntilFlicker = 3.0f;
 	float flickerDuration = 0.5f;
 	float flickerTimer = 0.0f;
@@ -87,11 +143,7 @@ int game(string joinCode, Renderer* renderer) {
 	thread recvThread;
 	thread sendThread;
 	Client client;
-	string ID;
 	if (joinCode != "NONE") {
-		cout << "USERNAME?" << endl;
-		cout << "-> ";
-		cin >> ID;
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, ID);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
@@ -385,11 +437,43 @@ int game(string joinCode, Renderer* renderer) {
 }
 
 int main() {
-	
-	//GUI(&renderer);
-	string joinCode;
-	cin >> joinCode;
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	game(joinCode, &renderer);
+
+	vector<MenuButton> pageButtons;
+	pageButtons.push_back(move(MenuButton(0.0f, 0.2f, 0.0f, 0.1f)));
+	pageButtons.push_back(move(MenuButton(0.0f, -0.2f, 1.0f, 0.1f)));
+	string joinCode;
+	vector<Text> pageText;
+	string pageID = "home";
+	while (true) {
+		tuple<int, string> data = GUI(&renderer, pageButtons, pageText, pageID);
+		int action = get<0>(data);
+		string extraData = get<1>(data);
+		if (action == 0) {
+			game("NONE", &renderer, "NONE");
+		}
+		if (action == 1) {
+			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
+											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "", 0.1f) } ;
+			pageID = "multiplayer";
+		}
+		if (action == 2) {
+			pageButtons = vector<MenuButton>{ MenuButton(0.0f, 0.2f, 0.0f, 0.1f), MenuButton(0.0f, -0.2f, 1.0f, 0.1f) };
+			pageText = vector<Text>{};
+			pageID = "home";
+		}
+		if (action == 3 && pageID == "join") {
+			cout << "JOINING! USERNAME: [" << extraData << "]" << endl;
+			game(joinCode, &renderer, extraData);
+		}
+		if (action == 3 && pageID == "multiplayer") {
+			joinCode = extraData;
+			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f), 
+				                              MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "", 0.1f) };
+			pageID = "join";
+		}
+	}
 	return 0;
 }

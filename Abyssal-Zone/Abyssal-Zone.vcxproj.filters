@@ -1325,6 +1325,8 @@
     <None Include="assets\shaders\multiplayer_vertex_shader.glsl" />
     <None Include="assets\shaders\button_fragment_shader.glsl" />
     <None Include="assets\shaders\button_vertex_shader.glsl" />
+    <None Include="assets\shaders\text_fragment_shader.glsl" />
+    <None Include="assets\shaders\text_vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\tile_texture.png">

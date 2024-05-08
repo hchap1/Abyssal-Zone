@@ -8,7 +8,6 @@
 #include <GLFW/glfw3.h>
 #include "CUSTOM/shader.h"
 #include <mutex>
-#include "CUSTOM/GLGUI.h"
 using namespace std;
 
 tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
@@ -235,7 +234,13 @@ private:
 
 class Renderer {
 public:
-    Renderer(int width, int height, std::string windowName) {
+    float mouseX;
+    float mouseY;
+    int width;
+    int height;
+    Renderer(int width, int height, std::string windowName) : width(width), height(height) {
+        mouseX = 0.0f;
+        mouseY = 0.0f;
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -246,6 +251,7 @@ public:
         window = glfwCreateWindow(width, height, windowName.c_str(), NULL, NULL);
         glfwMakeContextCurrent(window);
         gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        glfwSetWindowUserPointer(window, this);
         glfwSetCursorPosCallback(window, this->mouseCallback);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -274,22 +280,37 @@ public:
         lastFrame = currentFrame;
         return deltaTime;
     }
-    float mouseX;
-    float mouseY;
-    void setMousePosition(GLFWwindow* window, double x, double y) {
+    void setMousePosition(double x, double y) {
         mouseX = x;
         mouseY = y;
     }
     static void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
-        // Wrapper
         Renderer* renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
         if (renderer) {
-            renderer->setMousePosition(window, xpos, ypos);
+            renderer->mouseX = static_cast<float>((xpos/renderer->width) * 2.0 - 1.0);
+            renderer->mouseY = static_cast<float>(((ypos / renderer->height) * 2.0 - 1.0) * -1.0f);
         }
     }
 
+    bool mouseDown() {
+        return glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    }
+
+    bool mouseWasJustClicked() {
+        if (mouseDown()) {
+            mouseCount++;
+        }
+        else {
+            mouseCount = 0;
+        }
+        return mouseCount == 1;
+    }
+
+    inline float getMouseX() { return mouseX; }
+    inline float getMouseY() { return mouseY; }
+
 private:
     GLFWwindow* window;
-    int width, height;
     float lastFrame;
+    int mouseCount = 0;
 };
