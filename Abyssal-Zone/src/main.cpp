@@ -438,7 +438,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	game("CE519869", &renderer, "bob");
+	//game("CE519869", &renderer, "bob");
 	vector<MenuButton> pageButtons;
 	pageButtons.push_back(move(MenuButton(0.0f, 0.2f, 0.0f, 0.1f)));
 	pageButtons.push_back(move(MenuButton(0.0f, -0.2f, 1.0f, 0.1f)));
@@ -456,7 +456,7 @@ int main() {
 		if (action == 1) {
 			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
 											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "", 0.1f) } ;
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "CE519869", 0.1f) } ;
 			pageID = "multiplayer";
 		}
 		if (action == 2) {
