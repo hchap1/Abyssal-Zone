@@ -438,7 +438,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-
+	game("CE519869", &renderer, "bob");
 	vector<MenuButton> pageButtons;
 	pageButtons.push_back(move(MenuButton(0.0f, 0.2f, 0.0f, 0.1f)));
 	pageButtons.push_back(move(MenuButton(0.0f, -0.2f, 1.0f, 0.1f)));
@@ -446,6 +446,7 @@ int main() {
 	vector<Text> pageText;
 	string pageID = "home";
 	while (true) {
+		
 		tuple<int, string> data = GUI(&renderer, pageButtons, pageText, pageID);
 		int action = get<0>(data);
 		string extraData = get<1>(data);
