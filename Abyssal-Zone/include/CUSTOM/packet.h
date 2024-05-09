@@ -42,7 +42,7 @@ public:
                 if (data.size() > 2) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
-                    playerIDs.push_back(data[3]);
+                    playerIDs.push_back(splitString(data[3], '!')[0]);
                     if (data[2] == "1") { playerCrouchingBools.push_back(true); }
                     else { playerCrouchingBools.push_back(false); }
                 }
