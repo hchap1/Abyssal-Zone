@@ -456,7 +456,7 @@ int main() {
 		if (action == 1) {
 			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
 											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "CE519869", 0.1f) } ;
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "BE418750000", 0.1f) } ;
 			pageID = "multiplayer";
 		}
 		if (action == 2) {

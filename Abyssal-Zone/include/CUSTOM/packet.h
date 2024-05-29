@@ -26,6 +26,10 @@ public:
     string encoded;
     int playerCount = 0;
 	Packet(string encodedString) {
+        cout << "Received: " << encodedString << endl;
+        // Expected: ENEMYDATA|PLAYERDATA
+        //  WHERE: ENEMYDATA  = x,y,z/x,y,z/x,y,z
+        //         PLAYERDATA = x,y,z/x,y,z/x,y,z
         encoded = encodedString;
         vector<string> packetData = splitString(encodedString, '|');
         size_t delimCount = count(encodedString.begin(), encodedString.end(), '|');
@@ -43,7 +47,7 @@ public:
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
                     playerIDs.push_back(splitString(data[3], '!')[0]);
-                    if (data[2] == "1") { playerCrouchingBools.push_back(true); }
+                    if (data[2] == "true") { playerCrouchingBools.push_back(true); }
                     else { playerCrouchingBools.push_back(false); }
                 }
             }
