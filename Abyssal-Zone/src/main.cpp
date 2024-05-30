@@ -161,17 +161,23 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
 	playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
 	playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
+	multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
 
 	tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
 	tilemapRenderer.setFloat("blockX", get<2>(tilemapVertexData));
 	tilemapRenderer.setFloat("blockY", get<3>(tilemapVertexData));
-	playerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
-	playerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	tilemapRenderer.setFloat("torchLight", 1.0f);
+	playerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
+	playerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	playerRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	playerRenderer.setFloat("torchLight", 1.0f);
+	multiplayerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
+	multiplayerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	multiplayerRenderer.setFloat("texOffset", 1.0f / 14.0f);
+	multiplayerRenderer.setFloat("torchLight", 1.0f);
 
 	playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	playerY = -blockHeight * startY - halfPlayerHeight;
@@ -195,6 +201,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	tilemapRenderer.setFloat("screenY", windowHeight);
 	playerRenderer.setFloat("screenX", windowWidth);
 	playerRenderer.setFloat("screenY", windowHeight);
+	multiplayerRenderer.setFloat("screenX", windowWidth);
+	multiplayerRenderer.setFloat("screenY", windowHeight);
 
 	glfwSwapInterval(1);
 	dt = renderer->getDeltaTime();
@@ -210,20 +218,26 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		playerRenderer.setFloat("frame", animationCycle);
 		tilemapRenderer.setFloat("lightScale", lightScale);
 		playerRenderer.setFloat("lightScale", lightScale);
+		multiplayerRenderer.setFloat("lightScale", lightScale);
+		multiplayerRenderer.setFloat("lightConstant", 1.0f);
+		multiplayerRenderer.setFloat("frame", animationCycle);
 		timeUntilFlicker -= dt;
 		if (flickerTimer > 0.0f) {
 			flickerTimer -= dt;
 			if (flickerTimer > 0.2f) {
 				tilemapRenderer.setFloat("lightConstant", 0.3f);
 				playerRenderer.setFloat("lightConstant", 0.3f);
+				multiplayerRenderer.setFloat("lightConstant", 0.3f);
 			}
 			else if (flickerTimer > 0.1f) {
 				tilemapRenderer.setFloat("lightConstant", 1.5f);
 				playerRenderer.setFloat("lightConstant", 1.5f);
+				multiplayerRenderer.setFloat("lightConstant", 1.5f);
 			}
 			else {
 				tilemapRenderer.setFloat("lightConstant", 0.1f);
 				playerRenderer.setFloat("lightConstant", 0.1f);
+				multiplayerRenderer.setFloat("lightConstant", 0.1f);
 			}
 		}
 		renderer->fillScreen(0, 0, 0);
