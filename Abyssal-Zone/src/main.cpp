@@ -120,6 +120,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float indexMiddle;
 	float animationCycle = 0.0f;
 	float cycleCount = 0.0f;
+	float lightScale = 1.0f;
 
 	bool crouching = false;
 	int jumpKeyCounter = 0;
@@ -127,6 +128,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	float playerX;
 	float playerY;
+	float zoom = 1.0f;
 	
 	dt = renderer->getDeltaTime();
 
@@ -135,7 +137,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	uniform_int_distribution<int> distribution(1, 10);
 	uniform_int_distribution<int> distribution2(80, 100);
 
-	RenderLayer tilemapRenderer({ 2, 2, 2, 1, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
+	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
 
@@ -149,11 +151,27 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
-	vector<vector<int>> tilemap = loadTilemap(1);
-	tuple<float*, int> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
-	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 24, GL_STATIC_DRAW);
+
+
+	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(1);
+	vector<vector<int>> tilemap = get<0>(tilemapData);
+	float (*lightArray)[4] = get<1>(tilemapData);
+	int numLights = get<2>(tilemapData);
+	tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
+	playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
+
+	tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
+	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+	tilemapRenderer.setFloat("blockX", get<2>(tilemapVertexData));
+	tilemapRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	playerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
+	playerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	tilemapRenderer.setFloat("torchLight", 1.0f);
+	playerRenderer.setFloat("texOffset", 1.0f / 14.0f);
+	playerRenderer.setFloat("torchLight", 1.0f);
 
 	playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	playerY = -blockHeight * startY - halfPlayerHeight;
@@ -175,6 +193,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	tilemapRenderer.setFloat("screenX", windowWidth);
 	tilemapRenderer.setFloat("screenY", windowHeight);
+	playerRenderer.setFloat("screenX", windowWidth);
+	playerRenderer.setFloat("screenY", windowHeight);
 
 	glfwSwapInterval(1);
 	dt = renderer->getDeltaTime();
@@ -186,17 +206,24 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		if (animationCycle > 7.0f) { animationCycle = 0.0f; }
 		tilemapRenderer.setFloat("lightConstant", 1.0f);
 		tilemapRenderer.setFloat("frame", animationCycle);
+		playerRenderer.setFloat("lightConstant", 1.0f);
+		playerRenderer.setFloat("frame", animationCycle);
+		tilemapRenderer.setFloat("lightScale", lightScale);
+		playerRenderer.setFloat("lightScale", lightScale);
 		timeUntilFlicker -= dt;
 		if (flickerTimer > 0.0f) {
 			flickerTimer -= dt;
 			if (flickerTimer > 0.2f) {
 				tilemapRenderer.setFloat("lightConstant", 0.3f);
+				playerRenderer.setFloat("lightConstant", 0.3f);
 			}
 			else if (flickerTimer > 0.1f) {
 				tilemapRenderer.setFloat("lightConstant", 1.5f);
+				playerRenderer.setFloat("lightConstant", 1.5f);
 			}
 			else {
 				tilemapRenderer.setFloat("lightConstant", 0.1f);
+				playerRenderer.setFloat("lightConstant", 0.1f);
 			}
 		}
 		renderer->fillScreen(0, 0, 0);
@@ -205,12 +232,28 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			timeUntilFlicker = distribution(gen);
 			flickerTimer = flickerDuration;
 		}
-
+		if (renderer->getKeyDown(GLFW_KEY_I)) {
+			zoom -= dt;
+		}
+		else if (renderer->getKeyDown(GLFW_KEY_O)) {
+			zoom += dt;
+		}
+		if (renderer->getKeyDown(GLFW_KEY_K)) {
+			lightScale -= dt;
+		}
+		else if (renderer->getKeyDown(GLFW_KEY_L)) {
+			lightScale += dt;
+		}
+		tilemapRenderer.setFloat("zoom", zoom);
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);
 		tilemapRenderer.draw(get<1>(tilemapVertexData));
+		playerRenderer.setFloat("zoom", zoom);
+		playerRenderer.setFloat("xOffset", playerX);
+		playerRenderer.setFloat("yOffset", playerY);
 
 		if (doMultiplayer) {
+			multiplayerRenderer.setFloat("zoom", zoom);
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
 			tuple<vector<float>, vector<float>, vector<bool>, vector<string>, bool> data = client.getVertexArray();
@@ -296,9 +339,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				crouching = false;
 			}
 		}
-		else {
-			crouching = false;
-		}
 		playerRenderer.setBool("isCrouching", crouching);
 
 		playerRenderer.draw(2);
@@ -326,9 +366,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		// Modify x position.
 		playerX += playerXVel * dt * 5.0f;
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
-		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
-		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
 		indexY = static_cast<int>((playerY + halfPlayerHeight * 0.8f) / blockHeight * -1.0f);
 		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
 		indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.5f) / blockHeight * -1.0f);
@@ -391,7 +431,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		playerYVel += dt * 15.0f;
 		playerY += playerYVel * dt * 0.3f;
 		// Re-calculate what blocks the player is hitting.
-		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+		indexXRight = static_cast<int>((playerX - halfPlayerWidth * 0.99f) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
 		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
@@ -414,6 +454,11 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				playerYVel = 0.0f;
 			}
 
+		}
+		if (crouching && indexY-3 >= 0 && indexY-3 < tilemap.size() && !grounded && playerYVel > 0.0f) {
+			if (!(collide(tilemap[indexY-3][indexXRightSmall]) || collide(tilemap[indexY-3][indexXLeftSmall]))) {
+				crouching = false;
+			}
 		}
 
 		// Jump check.
@@ -456,7 +501,7 @@ int main() {
 		if (action == 1) {
 			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
 											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "BE418750000", 0.1f) } ;
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "CE519850000", 0.1f) } ;
 			pageID = "multiplayer";
 		}
 		if (action == 2) {

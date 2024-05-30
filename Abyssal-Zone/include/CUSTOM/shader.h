@@ -112,6 +112,10 @@ public:
         glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value);
     }
 
+    void setArray_64_vec4(const std::string& name, float* value[4]) {
+        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 64, &value[0][0]);
+    }
+
 private:
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------

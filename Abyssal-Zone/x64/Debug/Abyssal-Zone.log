@@ -1,20 +1,20 @@
 ﻿  main.cpp
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(93,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(90,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(103,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(97,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(113,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(104,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(123,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(111,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(133,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(118,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(143,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(125,39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
 C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(21,11): warning C4101: 'yDist': unreferenced local variable
@@ -23,16 +23,16 @@ C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(
 C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(20,11): warning C4101: 'xDist': unreferenced local variable
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(261,32): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(251,32): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(278,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(268,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(284,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(274,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(285,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\renderer.h(275,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
@@ -43,74 +43,81 @@ C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(1
 C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\network.h(98,70): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(176,38): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(177,38): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(205,35): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(276,61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(277,30): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(281,75): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(282,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(283,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(284,88): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(285,53): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(286,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(288,30): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(288,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(288,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(288,80): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(295,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(295,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(295,83): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(295,88): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(319,23): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(328,75): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(329,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(330,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(331,88): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(332,79): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(333,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(334,84): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(338,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(194,38): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(195,38): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(196,37): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(197,37): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(232,35): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(319,61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(320,30): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(324,75): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(325,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(326,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(327,88): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(328,53): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(329,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(331,30): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(331,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(331,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(331,80): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
 C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(338,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(347,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(347,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(357,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(357,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(366,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(366,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(375,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(375,38): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(384,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(384,38): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(394,75): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(395,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(396,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(397,88): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(398,53): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(399,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(400,111): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(404,31): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(404,36): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(404,81): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(404,86): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(412,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(412,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(412,72): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(412,82): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(421,30): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(421,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(421,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(421,80): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(425,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(425,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(425,74): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(425,84): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(443,52): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(444,53): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(457,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(458,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(463,61): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(463,98): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(473,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(474,58): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(338,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(338,83): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(338,88): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(359,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(368,75): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(369,90): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(370,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(371,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(372,79): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(373,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(374,84): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(378,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(378,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(387,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(387,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(397,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(397,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(406,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(406,37): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(415,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(415,38): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(424,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(424,38): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(434,83): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(435,89): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(436,74): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(437,88): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(438,53): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(439,91): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(440,111): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(444,31): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(444,36): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(444,81): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(444,86): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(452,24): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(452,34): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(452,72): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(452,82): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(459,32): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(459,36): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(459,80): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(459,84): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(466,30): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(466,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(466,75): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(466,80): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(470,25): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(470,35): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(470,74): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(470,84): warning C4244: 'argument': conversion from 'float' to 'const unsigned __int64', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(488,52): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(489,53): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(502,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(503,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(508,61): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(508,98): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(518,60): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\src\main.cpp(519,58): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hchap\source\repos\Abyssal-Zone\Abyssal-Zone\include\CUSTOM\tilemap.h(61): warning C4172: returning address of local variable or temporary: data
   Abyssal-Zone.vcxproj -> C:\Users\hchap\source\repos\Abyssal-Zone\x64\Debug\Abyssal-Zone.exe

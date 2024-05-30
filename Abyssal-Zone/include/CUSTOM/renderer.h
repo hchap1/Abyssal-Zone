@@ -10,7 +10,7 @@
 #include <mutex>
 using namespace std;
 
-tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
+tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
     int numOfTriangles = 0;
 
     float xScale = blockSize / windowWidth;
@@ -42,7 +42,7 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
     }
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
-        totalSize += row.size() * 48 * sizeof(float);
+        totalSize += row.size() * 30 * sizeof(float);
     }
 
     float* vertexData = new float[totalSize];
@@ -87,9 +87,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
 
                 //Top left
@@ -97,9 +94,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
 
                 //Bottom left
@@ -107,9 +101,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
 
                 //Top right
@@ -117,9 +108,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
 
                 //Top left
@@ -127,9 +115,6 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale + yScale;
                 vertexData[index++] = 0;
                 vertexData[index++] = yOffset - offset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
 
                 //Bottom left
@@ -137,15 +122,11 @@ tuple<float*, int> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSi
                 vertexData[index++] = height * yScale;
                 vertexData[index++] = 1;
                 vertexData[index++] = yOffset;
-                vertexData[index++] = lightX;
-                vertexData[index++] = lightY;
-                vertexData[index++] = lightType;
                 vertexData[index++] = tileType;
             }
         }
     }
-    tuple<float*, int> dataReturn(vertexData, numOfTriangles);
-    return dataReturn;
+    return make_tuple(vertexData, numOfTriangles, xScale, yScale);
 }
 
 class RenderLayer {
@@ -221,6 +202,15 @@ public:
         lock_guard<mutex> lock(mtx);
         shader.use();
         shader.setBool(name, value);
+    }
+    void setArray_64_vec4(string name, float (*value)[4], int elementCount) {
+        lock_guard<mutex> lock(mtx);
+        shader.use();
+        float* arr[4];
+        for (int i = 0; i < elementCount && i < 64; i++) {
+            arr[i] = value[i];
+        }
+        shader.setArray_64_vec4(name, arr);
     }
 
 private:
