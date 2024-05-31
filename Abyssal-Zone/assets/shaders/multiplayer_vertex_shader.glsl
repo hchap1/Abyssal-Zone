@@ -2,6 +2,7 @@
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in float crouching;
+layout (location = 3) in float frame;
 
 out vec2 TexCoord;
 
@@ -45,7 +46,7 @@ void main(){
 	} 
 
 	gl_Position = shiftedPosition;
-	vec2 text = vec2(aTexCoord.x, aTexCoord.y + crouching * 0.5);
+	vec2 text = vec2(aTexCoord.x + frame / 9, aTexCoord.y + crouching * 0.5);
 	TexCoord = text;
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);

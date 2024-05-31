@@ -135,6 +135,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float playerY;
 	float zoom = 1.0f;
 	float frameTimer = 0.1f;
+	float frame = 0.0f;
 	
 	dt = renderer->getDeltaTime();
 
@@ -145,14 +146,14 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
-	RenderLayer multiplayerRenderer({ 2, 2, 1 }, "multiplayer", "player_texture", true);
+	RenderLayer multiplayerRenderer({ 2, 2, 1, 1 }, "multiplayer", "player_texture", true);
 
 	bool doMultiplayer = false;
 	thread recvThread;
 	thread sendThread;
 	Client client;
 	if (joinCode != "NONE") {
-		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, ID);
+		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, ID);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -189,7 +190,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	playerY = -blockHeight * startY - halfPlayerHeight;
 
 	float dir = 0.0f;
-	float frame = 0.0f;
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
 	float grounded;
@@ -282,7 +282,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 		if (playerXVel != 0.0f && frameTimer < 0.0f) {
 			frame += 1.0f;
-			frameTimer = 0.05f;
+			frameTimer = 0.07f;
 		}
 		if (frame >= 9.0f) {
 			frame = 1.0f;
@@ -295,19 +295,20 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			multiplayerRenderer.setFloat("zoom", zoom);
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
-			tuple<vector<float>, vector<float>, vector<bool>, vector<string>, bool> data = client.getVertexArray();
-			if (get<4>(data)) {
+			tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<string>, bool> data = client.getVertexArray();
+			if (get<5>(data)) {
 				vector<float>  pxp = get<0>(data);
 				vector<float>  pyp = get<1>(data);
 				vector<bool>   pcb = get<2>(data);
-				vector<string> pid = get<3>(data);
+				vector<float>  paf = get<3>(data);
+				vector<string> pid = get<4>(data);
 				size_t validCount = 0;
 				for (int i = 0; i < pxp.size(); i++) {
 					if (pid[i] != ID) {
 						validCount += 1;
 					}
 				}
-				size_t size = validCount * 30;
+				size_t size = validCount * 36;
 				size_t triangleCount = 0;
 				float* multiplayerVertexArray = new float[size];
 				size_t index = 0;
@@ -315,6 +316,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					float xPos = -pxp[i];
 					float yPos = -pyp[i];
 					float crouching = 0.0f;
+					float mpFrame = paf[i];
 					if (pcb[i]) { crouching = 1.0f; }
 					if (pid[i] != ID) {
 						triangleCount += 2;
@@ -323,39 +325,45 @@ int game(string joinCode, Renderer* renderer, string ID) {
 						multiplayerVertexArray[index++] = 0.0f;
 						multiplayerVertexArray[index++] = 1.0f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 
 						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
 						multiplayerVertexArray[index++] = 0.0f;
 						multiplayerVertexArray[index++] = 0.5f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 
 						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = playerTexOffset;
 						multiplayerVertexArray[index++] = 0.5f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 
 						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = playerTexOffset;
 						multiplayerVertexArray[index++] = 1.0f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 
 						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
 						multiplayerVertexArray[index++] = 0.0f;
 						multiplayerVertexArray[index++] = 1.0f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 
 						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-						multiplayerVertexArray[index++] = 1.0f;
+						multiplayerVertexArray[index++] = playerTexOffset;
 						multiplayerVertexArray[index++] = 0.5f;
 						multiplayerVertexArray[index++] = crouching;
+						multiplayerVertexArray[index++] = mpFrame;
 					}
 				}
-				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 15, GL_DYNAMIC_DRAW);
+				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 18, GL_DYNAMIC_DRAW);
 				multiplayerRenderer.draw(triangleCount);
 				delete[] multiplayerVertexArray;
 			}
@@ -550,7 +558,7 @@ int main() {
 		if (action == 1) {
 			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
 											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "CE519850000", 0.1f) } ;
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "BE412450000", 0.1f) } ;
 			pageID = "multiplayer";
 		}
 		if (action == 2) {

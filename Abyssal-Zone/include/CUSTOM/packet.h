@@ -21,6 +21,7 @@ public:
     vector<float> playerXPositions;
     vector<float> playerYPositions;
     vector<bool> playerCrouchingBools;
+    vector<float> playerFrames;
     vector<string> playerIDs;
 
     string encoded;
@@ -42,11 +43,14 @@ public:
             for (string player : players) {
                 playerCount += 1;
                 data = splitString(player, ',');
-                if (data.size() > 2) {
+                if (data.size() > 4) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
-                    playerIDs.push_back(splitString(data[3], '!')[0]);
-                    if (data[2] == "true" || data[2] == "1") { playerCrouchingBools.push_back(true); }
+                    playerFrames.push_back(stof(data[3]));
+                    playerIDs.push_back(splitString(data[4], '!')[0]);
+                    if (data[2] == "true" || data[2] == "1") { 
+                        playerCrouchingBools.push_back(true); 
+                    }
                     else { playerCrouchingBools.push_back(false); }
                 }
             }

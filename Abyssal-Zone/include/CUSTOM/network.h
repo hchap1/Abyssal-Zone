@@ -37,7 +37,9 @@ tuple<string, int> decodeIP(string encoded) {
 class Client {
 public:
     Client() {}
-    Client(string joinCode, float halfPlayerWidth, float halfPlayerHeight, float* px, float* py, bool* ic, string ID) : ID(ID){
+    Client(string joinCode, float halfPlayerWidth, 
+        float halfPlayerHeight, float* px, float* py, 
+        bool* ic, float* frame, string ID) : frame(frame), ID(ID){
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -76,6 +78,7 @@ public:
                     playerCrouchingBools = packet.playerCrouchingBools;
                     playerXPositions = packet.playerXPositions;
                     playerYPositions = packet.playerYPositions;
+                    playerFrames = packet.playerFrames;
                     playerIDs = packet.playerIDs;
                     hasVertexData = true;
                 }
@@ -94,13 +97,13 @@ public:
             this_thread::sleep_for(chrono::milliseconds(16));
             string crString = "false";
             if (*crouching) { crString = "true"; }
-            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + ID + "!";
+            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + to_string(*frame) + ", " + ID + "!";
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
 
-    tuple<vector<float>, vector<float>, vector<bool>, vector<string>, bool> getVertexArray() {
-        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerIDs, hasVertexData);
+    tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<string>, bool> getVertexArray() {
+        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerFrames, playerIDs, hasVertexData);
     }
 	
 private:
@@ -114,11 +117,13 @@ private:
     float* playerX;
     float* playerY;
     bool* crouching;
+    float* frame;
     int playerCount;
     
     vector<float> playerXPositions;
     vector<float> playerYPositions;
     vector<bool> playerCrouchingBools;
+    vector<float> playerFrames;
     vector<string> playerIDs;
 
     bool hasVertexData;
