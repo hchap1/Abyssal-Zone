@@ -270,7 +270,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		}
 		if (static_cast<int>(playerXVel * 100) != 0) { dir = abs(playerXVel) / -playerXVel; }
 		else { dir = 0.0f; }
-		cout << dir << endl;
 		tilemapRenderer.setFloat("zoom", zoom);
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);

@@ -21,7 +21,6 @@ uniform float yOffset;
 uniform float screenX;
 uniform float screenY;
 uniform float lightConstant;
-uniform float frame;
 uniform float texOffset;
 uniform float torchLight;
 
