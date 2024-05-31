@@ -3,6 +3,7 @@ layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in float crouching;
 layout (location = 3) in float frame;
+layout (location = 4) in float direction;
 
 out vec2 TexCoord;
 
@@ -43,10 +44,20 @@ void main(){
 			RGB = vec3(RGB.x + b * 1.3 * torchLight, RGB.y + b * 0.6 * torchLight, RGB.z + b * 0.2 * torchLight);
 		}
 	} 
-
 	gl_Position = shiftedPosition;
-	vec2 text = vec2(aTexCoord.x + frame / 9, aTexCoord.y + crouching * 0.5);
-	TexCoord = text;
+	vec2 texCoord;
+	if (direction == 1.0) { 
+		texCoord = vec2(aTexCoord.x + frame / 9, aTexCoord.y + crouching * 0.5); 
+	}
+	else if (direction ==-1.0) { 
+		float xP = 0.0;
+		if (aTexCoord.x == 0.0) { xP = 1.0/9.0; }
+		else { xP = 0.0; }
+		texCoord = vec2(xP + frame / 9, aTexCoord.y + crouching * 0.5); }
+	else {
+		texCoord = vec2(aTexCoord.x, aTexCoord.y + crouching * 0.5);
+	}
+	TexCoord = texCoord;
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);
 	float centerBrightness = (pow(sin(dx)*sin(dy), 2) * 1.6);

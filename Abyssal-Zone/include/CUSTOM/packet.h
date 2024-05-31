@@ -22,14 +22,12 @@ public:
     vector<float> playerYPositions;
     vector<bool> playerCrouchingBools;
     vector<float> playerFrames;
+    vector<float> playerDirections;
     vector<string> playerIDs;
 
     string encoded;
     int playerCount = 0;
 	Packet(string encodedString) {
-        // Expected: ENEMYDATA|PLAYERDATA
-        //  WHERE: ENEMYDATA  = x,y,z/x,y,z/x,y,z
-        //         PLAYERDATA = x,y,z/x,y,z/x,y,z
         encoded = encodedString;
         vector<string> packetData = splitString(encodedString, '|');
         size_t delimCount = count(encodedString.begin(), encodedString.end(), '|');
@@ -43,11 +41,12 @@ public:
             for (string player : players) {
                 playerCount += 1;
                 data = splitString(player, ',');
-                if (data.size() > 4) {
+                if (data.size() > 5) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
                     playerFrames.push_back(stof(data[3]));
-                    playerIDs.push_back(splitString(data[4], '!')[0]);
+                    playerDirections.push_back(stof(data[4]));
+                    playerIDs.push_back(splitString(data[5], '!')[0]);
                     if (data[2] == "true" || data[2] == "1") { 
                         playerCrouchingBools.push_back(true); 
                     }
