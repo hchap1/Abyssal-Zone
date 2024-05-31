@@ -7,6 +7,7 @@
 #include <random>
 #include "CUSTOM/network.h"
 #include "CUSTOM/GLGUI.h"
+#include <windows.h>
 
 using namespace std;
 
@@ -23,6 +24,10 @@ bool collide(int blockID) {
 		return true;
 	}
 	return false;
+}
+
+bool ladder(int blockID) {
+	return blockID == 6;
 }
 
 char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
@@ -129,6 +134,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float playerX;
 	float playerY;
 	float zoom = 1.0f;
+	float frameTimer = 0.1f;
 	
 	dt = renderer->getDeltaTime();
 
@@ -182,17 +188,19 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	playerY = -blockHeight * startY - halfPlayerHeight;
 
+	float dir = 0.0f;
+	float frame = 0.0f;
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
 	float grounded;
-
+	float playerTexOffset = 1.0f / 9.0f;
 	float playerVertexData[] = {
 		-halfPlayerWidth, -halfPlayerHeight, 0.0f, 0.5f,
 		-halfPlayerWidth,  halfPlayerHeight, 0.0f, 1.0f,
-		 halfPlayerWidth, -halfPlayerHeight, 1.0f, 0.5f,
-		 halfPlayerWidth,  halfPlayerHeight, 1.0f, 1.0f,
+		 halfPlayerWidth, -halfPlayerHeight, playerTexOffset, 0.5f,
+		 halfPlayerWidth,  halfPlayerHeight, playerTexOffset, 1.0f,
 		-halfPlayerWidth,  halfPlayerHeight, 0.0f, 1.0f,
-		 halfPlayerWidth, -halfPlayerHeight, 1.0f, 0.5f,
+		 halfPlayerWidth, -halfPlayerHeight, playerTexOffset, 0.5f,
 	};
 
 	playerRenderer.setVertices(playerVertexData, 2, 12, GL_STATIC_DRAW);
@@ -209,6 +217,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	while (renderer->isRunning()) {
 		
 		dt = renderer->getDeltaTime();
+		frameTimer -= dt;
 		cycleCount += dt;
 		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
 		if (animationCycle > 7.0f) { animationCycle = 0.0f; }
@@ -218,6 +227,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		playerRenderer.setFloat("frame", animationCycle);
 		tilemapRenderer.setFloat("lightScale", lightScale);
 		playerRenderer.setFloat("lightScale", lightScale);
+		playerRenderer.setFloat("frame", frame);
 		multiplayerRenderer.setFloat("lightScale", lightScale);
 		multiplayerRenderer.setFloat("lightConstant", 1.0f);
 		multiplayerRenderer.setFloat("frame", animationCycle);
@@ -258,6 +268,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		else if (renderer->getKeyDown(GLFW_KEY_L)) {
 			lightScale += dt;
 		}
+		if (static_cast<int>(playerXVel * 100) != 0) { dir = abs(playerXVel) / -playerXVel; }
+		else { dir = 0.0f; }
+		cout << dir << endl;
 		tilemapRenderer.setFloat("zoom", zoom);
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);
@@ -265,6 +278,18 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		playerRenderer.setFloat("zoom", zoom);
 		playerRenderer.setFloat("xOffset", playerX);
 		playerRenderer.setFloat("yOffset", playerY);
+		playerRenderer.setFloat("direction", dir);
+
+		if (playerXVel != 0.0f && frameTimer < 0.0f) {
+			frame += 1.0f;
+			frameTimer = 0.05f;
+		}
+		if (frame >= 9.0f) {
+			frame = 1.0f;
+		}
+		if (abs(playerXVel) < 0.05f) {
+			frame = 0.0f;
+		}
 
 		if (doMultiplayer) {
 			multiplayerRenderer.setFloat("zoom", zoom);
@@ -385,7 +410,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
 		indexY = static_cast<int>((playerY + halfPlayerHeight * 0.8f) / blockHeight * -1.0f);
 		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
-		indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.5f) / blockHeight * -1.0f);
+		indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.25f) / blockHeight * -1.0f);
 
 		// When moving right, check for collisions at the right index.
 		if (playerXVel < 0.0f) {
@@ -404,7 +429,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			}
 
 		}
-
+		bool onLadder = false;
 		if (!crouching) {
 			// When moving right, check for collisions at the right index.
 			if (playerXVel < 0.0f) {
@@ -430,7 +455,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					playerX = halfPlayerWidth - indexXRight * blockWidth;
 					playerXVel = 0.0f;
 				}
-
 			}
 
 			// When moving left, check for collisions at the left index.
@@ -440,10 +464,21 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					playerXVel = 0.0f;
 				}
 			}
+			if (ladder(tilemap[indexMiddle][indexXRightSmall]) || ladder(tilemap[indexMiddle][indexXLeftSmall])) {
+				if (renderer->getKeyDown(GLFW_KEY_W)) {
+					onLadder = true;
+				}
+			}
 		}
-		// Move on the Y-axis
-		playerYVel += dt * 15.0f;
+		if (!onLadder) {
+			// Move on the Y-axis
+			playerYVel += dt * 15.0f;
+		}
+		else {
+			playerYVel = -1.5f;
+		}
 		playerY += playerYVel * dt * 0.3f;
+			
 		// Re-calculate what blocks the player is hitting.
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth * 0.99f) / blockWidth * -1.0f);
 		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);

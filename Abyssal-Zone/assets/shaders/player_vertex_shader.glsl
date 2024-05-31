@@ -7,7 +7,7 @@ out vec2 TexCoord;
 out float redBrightness;
 out float greenBrightness;
 out float blueBrightness;
-
+uniform float direction;
 uniform float lightScale;
 uniform vec4 lightSources[64];
 uniform float lightCount;
@@ -45,9 +45,20 @@ void main(){
 		}
 	} 
 	gl_Position = shiftedPosition;
-	vec2 texCoord = aTexCoord;
+	vec2 texCoord;
+	if (direction == 1.0) { 
+		texCoord = vec2(aTexCoord.x + frame / 9, aTexCoord.y); 
+	}
+	else if (direction ==-1.0) { 
+		float xP = 0.0;
+		if (aTexCoord.x == 0.0) { xP = 1.0/9.0; }
+		else { xP = 0.0; }
+		texCoord = vec2(xP + frame / 9, aTexCoord.y); }
+	else {
+		texCoord = aTexCoord;
+	}
 	if (isCrouching) {
-		texCoord = vec2(aTexCoord.x, aTexCoord.y + 0.5);
+		texCoord = vec2(aTexCoord.x + frame / 9, aTexCoord.y + 0.5);
 	}
 	TexCoord = texCoord;
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
