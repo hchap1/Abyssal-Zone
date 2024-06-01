@@ -13,8 +13,8 @@ using namespace std;
 
 int windowWidth = 1920;
 int windowHeight = 1080;
-float startX = 1.0f;
-float startY = 5.0f;
+float startX = 3.0f;
+float startY = 1.0f;
 float playerWidth = 0.8f;
 float playerHeight = 1.8f;
 float blockSize = 300.0f;
@@ -161,19 +161,24 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	}
 
 
-	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(1);
+	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(0);
 	vector<vector<int>> tilemap = get<0>(tilemapData);
 	float (*lightArray)[4] = get<1>(tilemapData);
 	int numLights = get<2>(tilemapData);
-	tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	if (numLights > 0) {
+		tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	}
 	tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
-	playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	if (numLights > 0) {
+		playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	}
 	playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
-	multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+	if (numLights > 0) { multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights); }
 	multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
 
 	tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+	delete[] get<0>(tilemapVertexData);
 	tilemapRenderer.setFloat("blockX", get<2>(tilemapVertexData));
 	tilemapRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
@@ -194,7 +199,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float playerXVel = 0.0f;
 	float playerYVel = 0.0f;
 	float grounded;
-	float playerTexOffset = 1.0f / 9.0f;
+	float playerTexOffset = 1.0f / 10.0f;
 	float playerVertexData[] = {
 		-halfPlayerWidth, -halfPlayerHeight, 0.0f, 0.5f,
 		-halfPlayerWidth,  halfPlayerHeight, 0.0f, 1.0f,
@@ -205,13 +210,12 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	};
 
 	playerRenderer.setVertices(playerVertexData, 2, 12, GL_STATIC_DRAW);
-
-	tilemapRenderer.setFloat("screenX", windowWidth);
-	tilemapRenderer.setFloat("screenY", windowHeight);
-	playerRenderer.setFloat("screenX", windowWidth);
-	playerRenderer.setFloat("screenY", windowHeight);
-	multiplayerRenderer.setFloat("screenX", windowWidth);
-	multiplayerRenderer.setFloat("screenY", windowHeight);
+	tilemapRenderer.setFloat("screenX", static_cast<float>(windowWidth));
+	tilemapRenderer.setFloat("screenY", static_cast<float>(windowHeight));
+	playerRenderer.setFloat("screenX", static_cast<float>(windowWidth));
+	playerRenderer.setFloat("screenY", static_cast<float>(windowHeight));
+	multiplayerRenderer.setFloat("screenX", static_cast<float>(windowWidth));
+	multiplayerRenderer.setFloat("screenY", static_cast<float>(windowHeight));
 
 	glfwSwapInterval(1);
 	dt = renderer->getDeltaTime();
@@ -270,7 +274,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			lightScale += dt;
 		}
 		if (static_cast<int>(playerXVel * 100) != 0) { dir = abs(playerXVel) / -playerXVel; }
-		else { dir = 0.0f; }
 		tilemapRenderer.setFloat("zoom", zoom);
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);
@@ -279,16 +282,19 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		playerRenderer.setFloat("xOffset", playerX);
 		playerRenderer.setFloat("yOffset", playerY);
 		playerRenderer.setFloat("direction", dir);
-
+		
 		if (playerXVel != 0.0f && frameTimer < 0.0f) {
 			frame += 1.0f;
 			frameTimer = 0.07f;
 		}
-		if (frame >= 9.0f) {
-			frame = 1.0f;
+		if ((frame >= 9.0f || frame < 2.0f) && playerXVel != 0.0f) {
+			frame = 2.0f;
 		}
 		if (abs(playerXVel) < 0.05f) {
 			frame = 0.0f;
+		}
+		if (playerYVel > 0.0f) {
+			frame = 1.0f;
 		}
 
 		if (doMultiplayer) {

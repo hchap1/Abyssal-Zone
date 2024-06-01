@@ -38,7 +38,7 @@ void main(){
 		float dly = 1-clamp(abs((ly-y) * screenY) / 1000.0, 0.0, 1.0);
 		float b = (pow(sin(dlx)*sin(dly), 2) * 3) * data.w;
 		if (data.z == 3.0) {
-			RGB = vec3(RGB.x + b, RGB.y + b, RGB.z + b);
+			RGB = vec3(RGB.x + b * lightConstant, RGB.y + b * lightConstant, RGB.z + b * lightConstant);
 		}	
 		else if (data.z == 7.0) {
 			RGB = vec3(RGB.x + b * 1.3 * torchLight, RGB.y + b * 0.6 * torchLight, RGB.z + b * 0.2 * torchLight);
@@ -47,24 +47,24 @@ void main(){
 	gl_Position = shiftedPosition;
 	vec2 texCoord;
 	if (direction == 1.0) { 
-		texCoord = vec2(aTexCoord.x + frame / 9, aTexCoord.y); 
+		texCoord = vec2(aTexCoord.x + frame * 0.1, aTexCoord.y); 
 	}
 	else if (direction ==-1.0) { 
 		float xP = 0.0;
-		if (aTexCoord.x == 0.0) { xP = 1.0/9.0; }
+		if (aTexCoord.x == 0.0) { xP = 0.1; }
 		else { xP = 0.0; }
-		texCoord = vec2(xP + frame / 9, aTexCoord.y); }
+		texCoord = vec2(xP + frame * 0.1, aTexCoord.y); }
 	else {
-		texCoord = aTexCoord;
+		texCoord = vec2(aTexCoord.x + frame * 0.1, aTexCoord.y);
 	}
 	if (isCrouching) {
-		texCoord = vec2(aTexCoord.x + frame / 9, aTexCoord.y + 0.5);
+		texCoord = vec2(aTexCoord.x + frame * 0.1, aTexCoord.y + 0.5);
 	}
 	TexCoord = texCoord;
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);
 	float centerBrightness = (pow(sin(dx)*sin(dy), 2));
-	redBrightness = (RGB.x + centerBrightness) * lightScale;
+	redBrightness = (RGB.x + centerBrightness) * lightScale * 1.7;
 	greenBrightness = (RGB.y + centerBrightness) * lightScale;
 	blueBrightness = (RGB.z + centerBrightness) * lightScale;
 }

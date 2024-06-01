@@ -17,29 +17,7 @@ tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int
     float yScale = blockSize / windowHeight;
     float offset = (1.0f / tileTextureSize);
     float yOffset;
-    float xDist;
-    float yDist;
-    float midpointX;
-    float midpointY;
-    float lightX;
-    float lightY;
-    float distanceX;
-    float distanceY;
-    float distance;
-    float smallestDistance;
-    float closestLightX;
-    float closestLightY;
-    float lightType;
 
-    vector<vector<float>> lightPositions;
-    for (int y = 0; y < tilemap.size(); y++) {
-        for (int x = 0; x < tilemap[0].size(); x++) {
-            if (tilemap[y][x] == 3 || tilemap[y][x] == 7) {
-                vector<float> lightPos = { x * xScale + xScale * 0.5f, y * yScale + yScale * 0.5f, static_cast<float>(tilemap[y][x]) };
-                lightPositions.push_back(lightPos);
-            }
-        }
-    }
     size_t totalSize = 0;
     for (const auto& row : tilemap) {
         totalSize += row.size() * 30 * sizeof(float);
@@ -55,32 +33,6 @@ tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int
             yOffset = offset * tileType;
             if (tileType != 0) {
                 numOfTriangles += 2;
-
-                midpointX = width * xScale + xScale * 0.5f;
-                midpointY = height * yScale + yScale * 0.5f;
-                smallestDistance = -1.0f;
-                closestLightX = 100.0f;
-                closestLightY = 100.0f;
-
-                float counter = 0;
-
-                for (vector<float> lightPos : lightPositions) {
-                    counter++;
-                    lightX = lightPos[0];
-                    lightY = lightPos[1];
-                    distanceX = abs(midpointX - lightX);
-                    distanceY = abs(midpointY - lightY);
-                    distance = sqrtf(distanceX * distanceX + distanceY * distanceY);
-                    if (distance < smallestDistance || smallestDistance == -1.0f) {
-                        smallestDistance = distance;
-                        closestLightX = lightX;
-                        closestLightY = lightY;
-                        lightType = lightPos[2];
-                    }
-                }
-
-                lightX = closestLightX;
-                lightY = closestLightY;
 
                 //Bottom left
                 vertexData[index++] = width * xScale;
@@ -206,8 +158,8 @@ public:
     void setArray_64_vec4(string name, float (*value)[4], int elementCount) {
         lock_guard<mutex> lock(mtx);
         shader.use();
-        float* arr[4];
-        for (int i = 0; i < elementCount && i < 64; i++) {
+        float** arr = new float* [64];
+        for (int i = 0; i < 64; ++i) {
             arr[i] = value[i];
         }
         shader.setArray_64_vec4(name, arr);

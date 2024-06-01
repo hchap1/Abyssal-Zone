@@ -31,13 +31,13 @@ void main(){
 	vec3 RGB = vec3(0.0,0.0,0.0);
 	for (int i = 0; i < lightCount && i < 64; i++) {
 		vec4 data = lightSources[i];
-		float lx = ((data.x + 0.5) * blockX + xOffset);
-		float ly = (data.y * blockY + yOffset);
+		float lx = ((data.x + 0.5) * blockX) + xOffset;
+		float ly = (data.y * blockY) + yOffset;
 		float dlx = 1-clamp(abs((lx-x) * screenX) / 1000.0, 0.0, 1.0);
 		float dly = 1-clamp(abs((ly-y) * screenY) / 1000.0, 0.0, 1.0);
 		float b = (pow(sin(dlx)*sin(dly), 2) * 3) * data.w;
 		if (data.z == 3.0) {
-			RGB = vec3(RGB.x + b, RGB.y + b, RGB.z + b);
+			RGB = vec3(RGB.x + b * lightConstant, RGB.y + b * lightConstant, RGB.z + b * lightConstant);
 		}	
 		else if (data.z == 7.0) {
 			RGB = vec3(RGB.x + b * 1.3 * torchLight, RGB.y + b * 0.6 * torchLight, RGB.z + b * 0.2 * torchLight);
