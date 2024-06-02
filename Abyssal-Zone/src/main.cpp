@@ -14,7 +14,7 @@ using namespace std;
 int windowWidth = 1920;
 int windowHeight = 1080;
 float startX = 3.0f;
-float startY = 1.0f;
+float startY = 2.0f;
 float playerWidth = 0.8f;
 float playerHeight = 1.8f;
 float blockSize = 300.0f;
@@ -161,7 +161,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	}
 
 
-	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(0);
+	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(3);
 	vector<vector<int>> tilemap = get<0>(tilemapData);
 	float (*lightArray)[4] = get<1>(tilemapData);
 	int numLights = get<2>(tilemapData);

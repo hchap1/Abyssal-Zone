@@ -63,7 +63,7 @@ void main(){
 	TexCoord = texCoord;
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);
-	float centerBrightness = (pow(sin(dx)*sin(dy), 2));
+	float centerBrightness = (pow(sin(dx)*sin(dy), 7)) * 50;
 	redBrightness = (RGB.x + centerBrightness) * lightScale * 1.7;
 	greenBrightness = (RGB.y + centerBrightness) * lightScale;
 	blueBrightness = (RGB.z + centerBrightness) * lightScale;
