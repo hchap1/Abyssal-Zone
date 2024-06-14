@@ -276,7 +276,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		if (static_cast<int>(playerXVel * 100) != 0) { dir = abs(playerXVel) / -playerXVel; }
 
 		if (RCV) {
-			cout << "Recomputing tilemap." << endl;
 			RCV = false;
 			vector<string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
 			startX = stof(coords[0]);
