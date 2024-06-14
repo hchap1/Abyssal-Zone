@@ -5,9 +5,10 @@
 #include <vector>
 #include <algorithm>
 #include <tuple>
+#include "CUSTOM/packet.h"
 using namespace std;
 
-tuple<vector<vector<int>>, float(*)[4], int> loadTilemap(int levelID) {
+tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
     const string filename = "assets/levels/" + to_string(levelID) + ".tilemap";
     ifstream file(filename);
     if (!file.is_open()) {
@@ -59,4 +60,41 @@ int* loadLevelData(int levelID) {
     dataFile >> data[0] >> data[1] >> data[2] >> data[3];
     dataFile.close();
     return data;
+}
+
+tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromString(string message) {
+    static float lightArray[64][4] = {};
+    vector<string> data = splitString(message, '|');
+    string tilemapString = splitString(data[1], '!')[0];
+    vector<vector<int>> newTilemap;
+    int xCount = 0;
+    int yCount = 0;
+    int index = 0;
+    int size = count(tilemapString.begin(), tilemapString.end(), '/') + 1;
+    for (string row : splitString(tilemapString, '/')) {
+        vector<int> v_row;
+        for (string tile : splitString(row, ',')) {
+            int t = stoi(tile);
+            if (t > 7) {
+                t += 7;
+            }
+            v_row.push_back(t);
+            if (t > 7) {
+                t += 7;
+            }
+            if ((t == 3 || t == 7) && index < 64) {
+                // x, y, number, brightness
+                lightArray[index][0] = static_cast<float>(xCount);
+                lightArray[index][1] = static_cast<float>(yCount);
+                lightArray[index][2] = static_cast<float>(t);
+                lightArray[index][3] = 1.0f;
+                index++;
+            }
+            xCount++;
+        }
+        yCount++;
+        xCount = 0;
+        newTilemap.push_back(v_row);
+    }
+    return make_tuple(newTilemap, lightArray, index);
 }

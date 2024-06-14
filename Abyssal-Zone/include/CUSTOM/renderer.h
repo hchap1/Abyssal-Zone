@@ -28,6 +28,7 @@ tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int
     int tileType = 0;
 
     for (int height = 0; height < tilemap.size(); height++) {
+        cout << endl;
         for (int width = 0; width < tilemap[0].size(); width++) {
             tileType = tilemap[height][width];
             yOffset = offset * tileType;

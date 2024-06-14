@@ -130,6 +130,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	bool crouching = false;
 	int jumpKeyCounter = 0;
 	int multiplayerTriangleCount = 0;
+	float t = 0;
 
 	float playerX;
 	float playerY;
@@ -137,6 +138,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float frameTimer = 0.1f;
 	float frame = 0.0f;
 	float dir;
+
+	bool RCV = false;
+	string RCV_str = "";
 	
 	dt = renderer->getDeltaTime();
 
@@ -154,40 +158,27 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	thread sendThread;
 	Client client;
 
-	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(1);
+	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromFile(1);
 	vector<vector<int>> tilemap = get<0>(tilemapData);
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
-			&dir, ID, &tilemap, &tilemapRenderer, &windowWidth, &windowHeight, &blockSize, &blockWidth, &blockHeight);
+			&dir, ID, &RCV, &RCV_str);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
 	else {
 		client = Client("--local", halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame,
-			&dir, ID, &tilemap, &tilemapRenderer, &windowWidth, &windowHeight, &blockSize, &blockWidth, &blockHeight);
+			&dir, ID, &RCV, &RCV_str);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
 
-	float (*lightArray)[4] = get<1>(tilemapData);
-	int numLights = get<2>(tilemapData);
-	if (numLights > 0) {
-		tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
-	}
-	tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
-	if (numLights > 0) {
-		playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
-	}
-	playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
-	if (numLights > 0) { multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights); }
-	multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
-
 	tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
-	tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
-	delete[] get<0>(tilemapVertexData);
+	//tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+	//delete[] get<0>(tilemapVertexData);
 	tilemapRenderer.setFloat("blockX", get<2>(tilemapVertexData));
 	tilemapRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
@@ -231,6 +222,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	while (renderer->isRunning()) {
 		
 		dt = renderer->getDeltaTime();
+		cout << "FPS: " << 1 / dt << endl;
 		frameTimer -= dt;
 		cycleCount += dt;
 		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
@@ -283,15 +275,44 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			lightScale += dt;
 		}
 		if (static_cast<int>(playerXVel * 100) != 0) { dir = abs(playerXVel) / -playerXVel; }
+
+		if (RCV) {
+			cout << "Recomputing tilemap." << endl;
+			RCV = false;
+			vector<string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
+			startX = stof(coords[0]);
+			startY = stof(coords[1]);
+			playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
+			playerY = -blockHeight * startY - halfPlayerHeight;
+			tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromString(RCV_str);
+			tilemap = get<0>(tilemapData);
+			float(*lightArray)[4] = get<1>(tilemapData);
+			int numLights = get<2>(tilemapData);
+			if (numLights > 0) {
+				tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+			}
+			tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
+			if (numLights > 0) {
+				playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+			}
+			playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
+			if (numLights > 0) { multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights); }
+			multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
+
+			tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
+			t = get<1>(tilemapVertexData);
+			tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+			delete[] get<0>(tilemapVertexData);
+		}
+
 		tilemapRenderer.setFloat("zoom", zoom);
 		tilemapRenderer.setFloat("xOffset", playerX);
 		tilemapRenderer.setFloat("yOffset", playerY);
-		tilemapRenderer.draw(get<1>(tilemapVertexData));
+		tilemapRenderer.draw(t);
 		playerRenderer.setFloat("zoom", zoom);
 		playerRenderer.setFloat("xOffset", playerX);
 		playerRenderer.setFloat("yOffset", playerY);
 		playerRenderer.setFloat("direction", dir);
-		
 		if (playerXVel != 0.0f && frameTimer < 0.0f) {
 			frame += 1.0f;
 			frameTimer = 0.07f;
@@ -305,7 +326,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		if (playerYVel > 0.0f) {
 			frame = 1.0f;
 		}
-
 		if (doMultiplayer) {
 			multiplayerRenderer.setFloat("zoom", zoom);
 			multiplayerRenderer.setFloat("xOffset", playerX);
