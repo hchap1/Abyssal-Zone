@@ -125,7 +125,7 @@ public:
             this_thread::sleep_for(chrono::milliseconds(16));
             string crString = "0";
             if (*crouching) { crString = "1"; }
-            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + to_string(*frame) + "," + to_string(*direction) + "," + ID + "!";
+            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + to_string(static_cast<int>(*frame)) + "," + to_string(static_cast<int>(*direction)) + "," + ID + "!";
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
