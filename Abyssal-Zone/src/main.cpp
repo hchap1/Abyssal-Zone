@@ -153,16 +153,25 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	thread recvThread;
 	thread sendThread;
 	Client client;
+
+	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(1);
+	vector<vector<int>> tilemap = get<0>(tilemapData);
+
 	if (joinCode != "NONE") {
-		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, &dir, ID);
+		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
+			&dir, ID, &tilemap, &tilemapRenderer, &windowWidth, &windowHeight, &blockSize, &blockWidth, &blockHeight);
+		doMultiplayer = true;
+		recvThread = thread(&Client::recvData, &client);
+		sendThread = thread(&Client::sendData, &client);
+	}
+	else {
+		client = Client("--local", halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame,
+			&dir, ID, &tilemap, &tilemapRenderer, &windowWidth, &windowHeight, &blockSize, &blockWidth, &blockHeight);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
 
-
-	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemap(3);
-	vector<vector<int>> tilemap = get<0>(tilemapData);
 	float (*lightArray)[4] = get<1>(tilemapData);
 	int numLights = get<2>(tilemapData);
 	if (numLights > 0) {

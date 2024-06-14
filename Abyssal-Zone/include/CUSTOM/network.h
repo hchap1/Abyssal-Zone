@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 #include "CUSTOM/renderer.h"
 #include "CUSTOM/packet.h"
 using namespace std;
@@ -40,7 +41,14 @@ public:
     Client(string joinCode, float halfPlayerWidth, 
         float halfPlayerHeight, float* px, float* py, 
         bool* ic, float* frame, float* direction,
-        string ID) : frame(frame), direction(direction), ID(ID){
+        string ID, vector<vector<int>>* tilemap,
+        RenderLayer* tilemapRenderer, int* windowWidth, 
+        int* windowHeight, float* blocksize, float* blockWidth,
+        float* blockHeight) : frame(frame), 
+        direction(direction), ID(ID), tilemap(tilemap),
+        tilemapRenderer(tilemapRenderer), windowWidth(windowWidth),
+        windowHeight(windowHeight), blocksize(blocksize),
+        blockWidth(blockWidth), blockHeight(blockHeight) {
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -60,6 +68,53 @@ public:
         connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
     }
     void recvData() {
+        bool receivedInitial = false;
+        while (!receivedInitial) {
+            char i_buffer[65536];
+            int i_bytesReceived = recv(clientSocket, i_buffer, sizeof(i_buffer) - 1, 0);
+            if (i_bytesReceived == 0) {
+                cout << "Connection closed by server before first packet." << std::endl;
+                running = false;
+            }
+            else if (i_bytesReceived == -1) {
+                cout << "Connection closed before first packet. ERR: " << WSAGetLastError() << endl;
+                running = false;
+            }
+            else {
+                i_buffer[i_bytesReceived] = '\0';
+                string message(i_buffer);
+                if (!message.empty()) {
+                    if (message.substr(0, 9) == "<initial>") {
+                        cout << "Properly formatted packet!" << endl;
+                        vector<string> data = splitString(message, '|');
+                        vector<string> spawnCoord = splitString(splitString(data[0], '>')[1], ',');
+                        float startX = stof(spawnCoord[0]);
+                        float startY = stof(spawnCoord[1]);
+                        string tilemapString = splitString(data[1], '!')[0];
+                        vector<vector<int>> newTilemap;
+                        int size = count(tilemapString.begin(), tilemapString.end(), '/') + 1;
+                        for (string row : splitString(tilemapString, '/')) {
+                            vector<int> v_row;
+                            for (string tile : splitString(row, ',')) {
+                                v_row.push_back(stof(tile));
+                            }
+                            newTilemap.push_back(v_row);
+                        }
+                        this_thread::sleep_for(chrono::milliseconds(100));
+                        *tilemap = newTilemap;
+                        tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(*tilemap, 14, *windowWidth, *windowHeight, *blocksize);
+                        tilemapRenderer->setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+                        delete[] get<0>(tilemapVertexData);
+                        *playerX = -*blockWidth * startX - hpw * 1.5f;
+                        *playerY = -*blockHeight * startY - hph;
+                        receivedInitial = true;
+                    }
+                    else {
+                        cout << "Received badly formatted first packet. Substr = [" << message.substr(0, 9) << "]" << endl;
+                    }
+                }
+            }
+        }
         while (running) {
             char buffer[1024];
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
@@ -122,6 +177,13 @@ private:
     float* frame;
     float* direction;
     int playerCount;
+    vector<vector<int>>* tilemap;
+    RenderLayer* tilemapRenderer;
+    int* windowWidth;
+    int* windowHeight;
+    float* blocksize;
+    float* blockWidth;
+    float* blockHeight;
     
     vector<float> playerXPositions;
     vector<float> playerYPositions;
