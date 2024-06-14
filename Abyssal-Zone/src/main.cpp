@@ -222,7 +222,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	while (renderer->isRunning()) {
 		
 		dt = renderer->getDeltaTime();
-		cout << "FPS: " << 1 / dt << endl;
 		frameTimer -= dt;
 		cycleCount += dt;
 		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
