@@ -347,8 +347,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				float* multiplayerVertexArray = new float[size];
 				size_t index = 0;
 				for (int i = 0; i < pxp.size(); i++) {
-					float xPos = pxp[i] * blockWidth - halfPlayerWidth * 1.5f;
-					float yPos = pyp[i] * blockHeight - halfPlayerHeight;
+					float xPos = pxp[i] * blockWidth + halfPlayerWidth * 1.5f;
+					float yPos = pyp[i] * blockHeight + halfPlayerHeight;
 					float crouching = 0.0f;
 					float direction = pdv[i];
 					float mpFrame = paf[i];
