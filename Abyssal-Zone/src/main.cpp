@@ -163,14 +163,14 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
-			&dir, ID, &RCV, &RCV_str);
+			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
 	}
 	else {
 		client = Client("--local", halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame,
-			&dir, ID, &RCV, &RCV_str);
+			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -347,8 +347,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				float* multiplayerVertexArray = new float[size];
 				size_t index = 0;
 				for (int i = 0; i < pxp.size(); i++) {
-					float xPos = -pxp[i];
-					float yPos = -pyp[i];
+					float xPos = pxp[i] * blockWidth - halfPlayerWidth * 1.5f;
+					float yPos = pyp[i] * blockHeight - halfPlayerHeight;
 					float crouching = 0.0f;
 					float direction = pdv[i];
 					float mpFrame = paf[i];

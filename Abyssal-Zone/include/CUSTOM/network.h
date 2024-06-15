@@ -41,8 +41,9 @@ public:
     Client(string joinCode, float halfPlayerWidth, 
         float halfPlayerHeight, float* px, float* py, 
         bool* ic, float* frame, float* direction,
-        string ID, bool* RCV, string* RCV_str) : frame(frame), 
-        direction(direction), ID(ID), RCV(RCV), RCV_str(RCV_str) {
+        string ID, bool* RCV, string* RCV_str, float blockWidth, float blockHeight) : frame(frame), 
+        direction(direction), ID(ID), RCV(RCV), RCV_str(RCV_str),
+        blockWidth(blockWidth), blockHeight(blockHeight) {
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -125,7 +126,7 @@ public:
             this_thread::sleep_for(chrono::milliseconds(16));
             string crString = "0";
             if (*crouching) { crString = "1"; }
-            string message = to_string(*playerX) + "," + to_string(*playerY) + "," + crString + "," + to_string(static_cast<int>(*frame)) + "," + to_string(static_cast<int>(*direction)) + "," + ID + "!";
+            string message = to_string((*playerX + hpw * 1.5f) / (-blockWidth)) + "," + to_string((*playerY + hpw) / (-blockHeight)) + "," + crString + "," + to_string(static_cast<int>(*frame)) + "," + to_string(static_cast<int>(*direction)) + "," + ID + "!";
             int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
         }
     }
@@ -153,8 +154,8 @@ private:
     int* windowWidth;
     int* windowHeight;
     float* blocksize;
-    float* blockWidth;
-    float* blockHeight;
+    float blockWidth;
+    float blockHeight;
     float* t;
     vector<float> playerXPositions;
     vector<float> playerYPositions;
