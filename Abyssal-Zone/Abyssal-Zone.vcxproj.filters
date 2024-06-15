@@ -1326,6 +1326,8 @@
     <None Include="assets\shaders\text_vertex_shader.glsl" />
     <None Include="assets\levels\2.tilemap" />
     <None Include="assets\levels\3.tilemap" />
+    <None Include="assets\shaders\enemy_fragment_shader.glsl" />
+    <None Include="assets\shaders\enemy_vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\textures\tile_texture.png">

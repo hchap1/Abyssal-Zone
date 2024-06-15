@@ -152,6 +152,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 	RenderLayer multiplayerRenderer({ 2, 2, 1, 1, 1 }, "multiplayer", "player_texture", true);
+	RenderLayer enemyRenderer({ 2, 2 }, "enemy", "enemies", true);
 
 	bool doMultiplayer = false;
 	thread recvThread;
@@ -191,6 +192,11 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	multiplayerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
 	multiplayerRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	multiplayerRenderer.setFloat("torchLight", 1.0f);
+	enemyRenderer.setFloat("blockX", get<2>(tilemapVertexData));
+	enemyRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	enemyRenderer.setFloat("texOffset", 1.0f / 14.0f);
+	enemyRenderer.setFloat("torchLight", 1.0f);
+
 
 	playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 	playerY = -blockHeight * startY - halfPlayerHeight;
@@ -216,6 +222,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	playerRenderer.setFloat("screenY", static_cast<float>(windowHeight));
 	multiplayerRenderer.setFloat("screenX", static_cast<float>(windowWidth));
 	multiplayerRenderer.setFloat("screenY", static_cast<float>(windowHeight));
+	enemyRenderer.setFloat("screenX", static_cast<float>(windowWidth));
+	enemyRenderer.setFloat("screenY", static_cast<float>(windowHeight));
 
 	glfwSwapInterval(1);
 	dt = renderer->getDeltaTime();
@@ -236,6 +244,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		multiplayerRenderer.setFloat("lightScale", lightScale);
 		multiplayerRenderer.setFloat("lightConstant", 1.0f);
 		multiplayerRenderer.setFloat("frame", animationCycle);
+		enemyRenderer.setFloat("lightScale", lightScale);
+		enemyRenderer.setFloat("lightConstant", 1.0f);
+		enemyRenderer.setFloat("frame", animationCycle);
 		timeUntilFlicker -= dt;
 		if (flickerTimer > 0.0f) {
 			flickerTimer -= dt;
@@ -243,16 +254,19 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				tilemapRenderer.setFloat("lightConstant", 0.3f);
 				playerRenderer.setFloat("lightConstant", 0.3f);
 				multiplayerRenderer.setFloat("lightConstant", 0.3f);
+				enemyRenderer.setFloat("lightConstant", 0.3f);
 			}
 			else if (flickerTimer > 0.1f) {
 				tilemapRenderer.setFloat("lightConstant", 1.5f);
 				playerRenderer.setFloat("lightConstant", 1.5f);
 				multiplayerRenderer.setFloat("lightConstant", 1.5f);
+				enemyRenderer.setFloat("lightConstant", 1.5f);
 			}
 			else {
 				tilemapRenderer.setFloat("lightConstant", 0.1f);
 				playerRenderer.setFloat("lightConstant", 0.1f);
 				multiplayerRenderer.setFloat("lightConstant", 0.1f);
+				enemyRenderer.setFloat("lightConstant", 0.1f);
 			}
 		}
 		renderer->fillScreen(0, 0, 0);
@@ -286,16 +300,16 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			tilemap = get<0>(tilemapData);
 			float(*lightArray)[4] = get<1>(tilemapData);
 			int numLights = get<2>(tilemapData);
-			if (numLights > 0) {
+			if (numLights > 0) { 
 				tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+				playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
+				multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights); 
+				enemyRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
 			}
 			tilemapRenderer.setFloat("lightCount", static_cast<float>(numLights));
-			if (numLights > 0) {
-				playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
-			}
 			playerRenderer.setFloat("lightCount", static_cast<float>(numLights));
-			if (numLights > 0) { multiplayerRenderer.setArray_64_vec4("lightSources", lightArray, numLights); }
 			multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
+			enemyRenderer.setFloat("lightCount", static_cast<float>(numLights));
 
 			tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 			t = get<1>(tilemapVertexData);
@@ -328,7 +342,11 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			multiplayerRenderer.setFloat("zoom", zoom);
 			multiplayerRenderer.setFloat("xOffset", playerX);
 			multiplayerRenderer.setFloat("yOffset", playerY);
-			tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, bool> data = client.getVertexArray();
+			enemyRenderer.setFloat("zoom", zoom);
+			enemyRenderer.setFloat("xOffset", playerX);
+			enemyRenderer.setFloat("yOffset", playerY);
+			tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, 
+				bool, vector<float>, vector<float>, vector<string>> data = client.getVertexArray();
 			if (get<6>(data)) {
 				vector<float>  pxp = get<0>(data);
 				vector<float>  pyp = get<1>(data);
@@ -336,6 +354,10 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				vector<float>  paf = get<3>(data);
 				vector<float>  pdv = get<4>(data);
 				vector<string> pid = get<5>(data);
+				vector<float>  exp = get<7>(data);
+				vector<float>  eyp = get<8>(data);
+				vector<string> env = get<9>(data);
+
 				size_t validCount = 0;
 				for (int i = 0; i < pxp.size(); i++) {
 					if (pid[i] != ID) {
@@ -407,6 +429,50 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 21, GL_DYNAMIC_DRAW);
 				multiplayerRenderer.draw(triangleCount);
 				delete[] multiplayerVertexArray;
+
+				size = exp.size() * 24;
+				triangleCount = 0;
+				float* enemyVertexArray = new float[size];
+				index = 0;
+				halfPlayerHeight *= 0.5f;
+				for (int i = 0; i < exp.size(); i++) {
+					float xPos = exp[i] * blockWidth + halfPlayerWidth * 1.5f;
+					float yPos = eyp[i] * blockHeight + halfPlayerHeight;
+					triangleCount += 2;
+					enemyVertexArray[index++] = xPos - halfPlayerWidth;
+					enemyVertexArray[index++] = yPos + halfPlayerHeight;
+					enemyVertexArray[index++] = 0.0f;
+					enemyVertexArray[index++] = 1.0f;
+
+					enemyVertexArray[index++] = xPos - halfPlayerWidth;
+					enemyVertexArray[index++] = yPos - halfPlayerHeight;
+					enemyVertexArray[index++] = 0.0f;
+					enemyVertexArray[index++] = 0.0f;
+
+					enemyVertexArray[index++] = xPos + halfPlayerWidth;
+					enemyVertexArray[index++] = yPos - halfPlayerHeight;
+					enemyVertexArray[index++] = 1.0f;;
+					enemyVertexArray[index++] = 0.0f;
+
+					enemyVertexArray[index++] = xPos + halfPlayerWidth;
+					enemyVertexArray[index++] = yPos + halfPlayerHeight;
+					enemyVertexArray[index++] = 1.0f;
+					enemyVertexArray[index++] = 1.0f;
+
+					enemyVertexArray[index++] = xPos - halfPlayerWidth;
+					enemyVertexArray[index++] = yPos + halfPlayerHeight;
+					enemyVertexArray[index++] = 0.0f;
+					enemyVertexArray[index++] = 1.0f;
+
+					enemyVertexArray[index++] = xPos + halfPlayerWidth;
+					enemyVertexArray[index++] = yPos - halfPlayerHeight;
+					enemyVertexArray[index++] = 1.0f;
+					enemyVertexArray[index++] = 0.0f;
+				}
+				halfPlayerHeight *= 2.0f;
+				enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
+				enemyRenderer.draw(triangleCount);
+				delete[] enemyVertexArray;
 			}
 		}
 		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);

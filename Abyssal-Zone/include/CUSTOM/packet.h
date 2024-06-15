@@ -24,9 +24,13 @@ public:
     vector<float> playerFrames;
     vector<float> playerDirections;
     vector<string> playerIDs;
+    vector<float> enemyXPositions;
+    vector<float> enemyYPositions;
+    vector<string> enemyNames;
 
     string encoded;
     int playerCount = 0;
+    int enemyCount = 0;
 	Packet(string encodedString) {
         encoded = encodedString;
         vector<string> packetData = splitString(encodedString, '|');
@@ -34,14 +38,26 @@ public:
         if (packetData.size() > 1) {
             string enemyData = packetData[0];
             string playerData = packetData[1];
-            vector<string> enemies = splitString(enemyData, '/');
-            vector<string> players = splitString(playerData, '/');
             vector<string> data;
+
+            vector<string> enemies = splitString(enemyData, '/');
+            enemyCount = 0;
+            for (string enemy : enemies) {
+                enemyCount += 1;
+                data = splitString(enemy, ',');
+                if (data.size() >= 3) {
+                    enemyXPositions.push_back(stof(data[0]));
+                    enemyYPositions.push_back(stof(data[1]));
+                    enemyNames.push_back(data[2]);
+                }
+            }
+
+            vector<string> players = splitString(playerData, '/');
             playerCount = 0;
             for (string player : players) {
                 playerCount += 1;
                 data = splitString(player, ',');
-                if (data.size() > 5) {
+                if (data.size() >= 6) {
                     playerXPositions.push_back(stof(data[0]));
                     playerYPositions.push_back(stof(data[1]));
                     playerFrames.push_back(stof(data[3]));

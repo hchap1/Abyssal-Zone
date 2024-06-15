@@ -109,6 +109,9 @@ public:
                     playerFrames = packet.playerFrames;
                     playerDirections = packet.playerDirections;
                     playerIDs = packet.playerIDs;
+                    enemyXPositions = packet.enemyXPositions;
+                    enemyYPositions = packet.enemyYPositions;
+                    enemyNames = packet.enemyNames;
                     hasVertexData = true;
                 }
             }
@@ -131,8 +134,8 @@ public:
         }
     }
 
-    tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, bool> getVertexArray() {
-        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerFrames, playerDirections, playerIDs, hasVertexData);
+    tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, bool, vector<float>, vector<float>, vector<string>> getVertexArray() {
+        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerFrames, playerDirections, playerIDs, hasVertexData, enemyXPositions, enemyYPositions, enemyNames);
     }
 	
 private:
@@ -157,12 +160,17 @@ private:
     float blockWidth;
     float blockHeight;
     float* t;
+
     vector<float> playerXPositions;
     vector<float> playerYPositions;
     vector<bool> playerCrouchingBools;
     vector<float> playerFrames;
     vector<float> playerDirections;
     vector<string> playerIDs;
+    vector<float> enemyXPositions;
+    vector<float> enemyYPositions;
+    vector<string> enemyNames;
+
     bool* RCV;
     string* RCV_str;
     bool hasVertexData;
