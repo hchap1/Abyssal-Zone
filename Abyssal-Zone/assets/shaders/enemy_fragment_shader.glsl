@@ -11,5 +11,5 @@ uniform sampler2D blockTexture;
 
 void main(){
 	vec4 pC = texture(blockTexture, TexCoord);
-	FragColor = vec4(pC.x * redBrightness, pC.y * greenBrightness, pC.z * blueBrightness, pC.w);
+	FragColor = vec4(1.0, 1.0, 1.0, 0.5); // vec4(pC.x * redBrightness, pC.y * greenBrightness, pC.z * blueBrightness, pC.w);
 }

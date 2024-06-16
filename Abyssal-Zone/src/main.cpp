@@ -134,7 +134,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	float playerX;
 	float playerY;
-	float zoom = 1.0f;
+	float zoom = 0.5f;
 	float frameTimer = 0.1f;
 	float frame = 0.0f;
 	float dir;
@@ -619,11 +619,12 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			}
 
 		}
+		/*
 		if (crouching && indexY-3 >= 0 && indexY-3 < tilemap.size() && !grounded && playerYVel > 0.0f) {
 			if (!(collide(tilemap[indexY-3][indexXRightSmall]) || collide(tilemap[indexY-3][indexXLeftSmall]))) {
 				crouching = false;
 			}
-		}
+		}*/
 
 		// Jump check.
 		grounded = false;
