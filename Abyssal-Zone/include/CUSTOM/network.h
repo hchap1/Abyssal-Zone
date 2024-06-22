@@ -15,16 +15,26 @@ vector<string> split_with_delimiter(const string& input, const string& delimiter
     vector<string> result;
     size_t start = 0;
     size_t end;
+
     while ((end = input.find(delimiter, start)) != string::npos) {
         end += delimiter.length();
-        result.push_back(input.substr(start, end - start));
+        string component = input.substr(start, end - start);
+        if (!component.empty() && !all_of(component.begin(), component.end(), [](char c) { return c == '\0'; })) {
+            result.push_back(component);
+        }
         start = end;
     }
+
     if (start < input.length()) {
-        result.push_back(input.substr(start));
+        string component = input.substr(start);
+        if (!component.empty() && !all_of(component.begin(), component.end(), [](char c) { return c == '\0'; })) {
+            result.push_back(component);
+        }
     }
+
     return result;
 }
+
 
 
 float r4dp(float number) {
