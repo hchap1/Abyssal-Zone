@@ -138,9 +138,11 @@ public:
             else {
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
+                cout << "RAW: " << message << endl;
                 if (!message.empty()) {
                     vector<string> packets = split_with_delimiter(message, "!");
                     for (string packet : packets) {
+                        cout << "... -> " << packet << endl;
                         string identifier = splitString(packet, '>')[0];
                         string data = splitString(splitString(packet, '>')[1], '!')[0];
                     
