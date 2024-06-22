@@ -20,7 +20,7 @@ vector<string> split_with_delimiter(const string& input, const string& delimiter
         end += delimiter.length();
         string component = input.substr(start, end - start);
         if (!component.empty() && !all_of(component.begin(), component.end(), [](char c) { return c == '\0'; })) {
-            if (component.back() == '!') {
+            if (component.back() == '!' && component.front() == '<') {
                 result.push_back(component);
             }
         }
@@ -30,7 +30,7 @@ vector<string> split_with_delimiter(const string& input, const string& delimiter
     if (start < input.length()) {
         string component = input.substr(start);
         if (!component.empty() && !all_of(component.begin(), component.end(), [](char c) { return c == '\0'; })) {
-            if (component.back() == '!') {
+            if (component.back() == '!' && component.front() == '<') {
                 result.push_back(component);
             }
         }
