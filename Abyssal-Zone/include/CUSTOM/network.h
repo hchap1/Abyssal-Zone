@@ -11,6 +11,22 @@
 #include <cmath>
 using namespace std;
 
+vector<string> split_with_delimiter(const string& input, const string& delimiter) {
+    vector<string> result;
+    size_t start = 0;
+    size_t end;
+    while ((end = input.find(delimiter, start)) != string::npos) {
+        end += delimiter.length();
+        result.push_back(input.substr(start, end - start));
+        start = end;
+    }
+    if (start < input.length()) {
+        result.push_back(input.substr(start));
+    }
+    return result;
+}
+
+
 float r4dp(float number) {
     return std::round(number * 10000.0) / 10000.0;
 }
@@ -113,87 +129,90 @@ public:
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
                 if (!message.empty()) {
-                    string identifier = splitString(message, '>')[0];
-                    string data = splitString(splitString(message, '>')[1], '!')[0];
+                    vector<string> packets = split_with_delimiter(message, "!");
+                    for (string packet : packets) {
+                        string identifier = splitString(packet, '>')[0];
+                        string data = splitString(splitString(packet, '>')[1], '!')[0];
+                    
+                        // Entire tilemap sent over...
+                        if (identifier == "tilemap_info") {
+                            if (data == "1") {
+                                tilemap_buffer = "";
+                                coord_buffer = "";
+                            }
+                            if (data == "0") {
+                                tilemap_buffer[tilemap_buffer.length() - 1] = '!';
+                                *RCV_str = "initial>" + coord_buffer + "|" + tilemap_buffer;
+                                *RCV = true;
+                            }
+                        }
+                        // Spawn coordinates in format x,y
+                        if (identifier == "sp") {
+                            coord_buffer = data;
+                        }
+                        // Entire tilemap row
+                        if (identifier == "tmr") {
+                            tilemap_buffer += data + "/";
+                        }
 
-                    // Entire tilemap sent over...
-                    if (identifier == "tilemap_info") {
-                        if (data == "1") {
-                            tilemap_buffer = "";
-                            coord_buffer = "";
-                        }
-                        if (data == "0") {
-                            tilemap_buffer[tilemap_buffer.length() - 1] = '!';
-                            *RCV_str = "initial>" + coord_buffer + "|" + tilemap_buffer;
-                            *RCV = true;
-                        }
-                    }
-                    // Spawn coordinates in format x,y
-                    if (identifier == "sp") {
-                        coord_buffer = data;
-                    }
-                    // Entire tilemap row
-                    if (identifier == "tmr") {
-                        tilemap_buffer += data + "/";
-                    }
+                        // Block changed
+                        if (identifier == "bc") {
 
-                    // Block changed
-                    if (identifier == "bc") {
+                        }
 
-                    }
+                        // Player connected
+                        if (identifier == "pcon") {
+                            multiplayerData[data] = PlayerData(0.0f, 0.0f, true, 0, 0);
+                        }
+                        // Player disconnected
+                        if (identifier == "pdis") {
+                            multiplayerData.erase(data);
+                        }
+                        // Player position packet
+                        if (identifier == "pp") {
+                            vector<string> components = splitString(data, ',');
+                            if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                                multiplayerData[components[0]].x = stof(components[1]);
+                                multiplayerData[components[0]].y = stof(components[2]);
+                            }
+                        }
+                        // Player frame update
+                        if (identifier == "pf") {
+                            vector<string> components = splitString(data, ',');
+                            if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                                multiplayerData[components[0]].frame = stoi(components[1]);
+                            }
+                        }
+                        // Player crouching update
+                        if (identifier == "pc") {
+                            vector<string> components = splitString(data, ',');
+                            if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                                multiplayerData[components[0]].crouching = components[1] == "1";
+                            }
+                        }
+                        // Player direction update
+                        if (identifier == "pd") {
+                            vector<string> components = splitString(data, ',');
+                            if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                                multiplayerData[components[0]].direction = stoi(components[1]);
+                            }
+                        }
 
-                    // Player connected
-                    if (identifier == "pcon") {
-                        multiplayerData[data] = PlayerData(0.0f, 0.0f, true, 0, 0);
-                    }
-                    // Player disconnected
-                    if (identifier == "pdis") {
-                        multiplayerData.erase(data);
-                    }
-                    // Player position packet
-                    if (identifier == "pp") {
-                        vector<string> components = splitString(data, ',');
-                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
-                            multiplayerData[components[0]].x = stof(components[1]);
-                            multiplayerData[components[0]].y = stof(components[2]);
+                        // New enemy
+                        if (identifier == "ne") {
+                            enemyData[data] = EnemyData(0.0f, 0.0f);
                         }
-                    }
-                    // Player frame update
-                    if (identifier == "pf") {
-                        vector<string> components = splitString(data, ',');
-                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
-                            multiplayerData[components[0]].frame = stoi(components[1]);
+                        // Delete enemy
+                        if (identifier == "de") {
+                            enemyData.erase(data);
                         }
-                    }
-                    // Player crouching update
-                    if (identifier == "pc") {
-                        vector<string> components = splitString(data, ',');
-                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
-                            multiplayerData[components[0]].crouching = components[1] == "1";
-                        }
-                    }
-                    // Player direction update
-                    if (identifier == "pd") {
-                        vector<string> components = splitString(data, ',');
-                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
-                            multiplayerData[components[0]].direction = stoi(components[1]);
-                        }
-                    }
-
-                    // New enemy
-                    if (identifier == "ne") {
-                        enemyData[data] = EnemyData(0.0f, 0.0f);
-                    }
-                    // Delete enemy
-                    if (identifier == "de") {
-                        enemyData.erase(data);
-                    }
-                    // Enemy position packet
-                    if (identifier == "ep") {
-                        vector<string> components = splitString(data, ',');
-                        if (enemyData.find(components[0]) != enemyData.end()) {
-                            enemyData[components[0]].x = stof(components[1]);
-                            enemyData[components[0]].y = stof(components[2]);
+                        // Enemy position packet
+                        if (identifier == "ep") {
+                            vector<string> components = splitString(data, ',');
+                            if (enemyData.find(components[0]) != enemyData.end()) {
+                                enemyData[components[0]].x = stof(components[1]);
+                                enemyData[components[0]].y = stof(components[2]);
+                            }
                         }
                     }
                 }
