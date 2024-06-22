@@ -116,8 +116,6 @@ public:
                     string identifier = splitString(message, '>')[0];
                     string data = splitString(splitString(message, '>')[1], '!')[0];
 
-                    cout << "Received " << identifier << " containing " << data << endl;
-
                     // Entire tilemap sent over...
                     if (identifier == "tilemap_info") {
                         if (data == "1") {
@@ -210,6 +208,9 @@ public:
     int getPlayerCount() { return playerCount; }
 
     void sendData() {
+        string m = "pcon>" + ID + "!";
+        int initalSend = send(clientSocket, m.data(), strlen(m.data()), 0);
+        this_thread::sleep_for(chrono::milliseconds(10));
         while (running) {
             this_thread::sleep_for(chrono::milliseconds(10));
             // Positional update
@@ -217,17 +218,14 @@ public:
                 string message = "pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";
                 int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
             }
-            this_thread::sleep_for(chrono::milliseconds(2));
             if (*frame != lastState.frame) {
                 string message = "pf>" + ID + "," + to_string(*frame) + "!";
                 int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
             }
-            this_thread::sleep_for(chrono::milliseconds(2));
             if (*direction != lastState.direction) {
                 string message = "pd>" + ID + "," + to_string(*direction) + "!";
                 int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
             }
-            this_thread::sleep_for(chrono::milliseconds(2));
             if (*crouching != lastState.crouching) {
                 string crString = "0";
                 if (*crouching) { crString = "1"; }
@@ -239,12 +237,6 @@ public:
             lastState.crouching = *crouching;
             lastState.direction = *direction;
             lastState.frame = *frame;
-        }
-    }
-
-    void ssendData() {
-        while (running) {
-            this_thread::sleep_for(chrono::milliseconds(10));
         }
     }
 	
