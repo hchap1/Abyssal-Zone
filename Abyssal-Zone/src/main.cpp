@@ -140,6 +140,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float dir;
 
 	bool RCV = false;
+	bool doPhysics = false;
 	string RCV_str = "";
 	
 	dt = renderer->getDeltaTime();
@@ -291,6 +292,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 		if (RCV) {
 			RCV = false;
+			doPhysics = true;
 			vector<string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
 			startX = stof(coords[0]);
 			startY = stof(coords[1]);
@@ -345,299 +347,297 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			enemyRenderer.setFloat("zoom", zoom);
 			enemyRenderer.setFloat("xOffset", playerX);
 			enemyRenderer.setFloat("yOffset", playerY);
-			tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, 
-				bool, vector<float>, vector<float>, vector<string>> data = client.getVertexArray();
-			if (get<6>(data)) {
-				vector<float>  pxp = get<0>(data);
-				vector<float>  pyp = get<1>(data);
-				vector<bool>   pcb = get<2>(data);
-				vector<float>  paf = get<3>(data);
-				vector<float>  pdv = get<4>(data);
-				vector<string> pid = get<5>(data);
-				vector<float>  exp = get<7>(data);
-				vector<float>  eyp = get<8>(data);
-				vector<string> env = get<9>(data);
-
-				size_t validCount = 0;
-				for (int i = 0; i < pxp.size(); i++) {
-					if (pid[i] != ID) {
-						validCount += 1;
-					}
-				}
-				size_t size = validCount * 42;
-				size_t triangleCount = 0;
-				float* multiplayerVertexArray = new float[size];
-				size_t index = 0;
-				for (int i = 0; i < pxp.size(); i++) {
-					float xPos = pxp[i] * blockWidth + halfPlayerWidth * 1.5f;
-					float yPos = pyp[i] * blockHeight + halfPlayerHeight;
-					float crouching = 0.0f;
-					float direction = pdv[i];
-					float mpFrame = paf[i];
-					if (pcb[i]) { crouching = 1.0f; }
-					if (pid[i] != ID) {
-						triangleCount += 2;
-						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-						multiplayerVertexArray[index++] = 0.0f;
-						multiplayerVertexArray[index++] = 1.0f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-
-						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-						multiplayerVertexArray[index++] = 0.0f;
-						multiplayerVertexArray[index++] = 0.5f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-
-						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-						multiplayerVertexArray[index++] = playerTexOffset;
-						multiplayerVertexArray[index++] = 0.5f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-
-						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-						multiplayerVertexArray[index++] = playerTexOffset;
-						multiplayerVertexArray[index++] = 1.0f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-
-						multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
-						multiplayerVertexArray[index++] = 0.0f;
-						multiplayerVertexArray[index++] = 1.0f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-
-						multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
-						multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
-						multiplayerVertexArray[index++] = playerTexOffset;
-						multiplayerVertexArray[index++] = 0.5f;
-						multiplayerVertexArray[index++] = crouching;
-						multiplayerVertexArray[index++] = mpFrame;
-						multiplayerVertexArray[index++] = direction;
-					}
-				}
-				multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 21, GL_DYNAMIC_DRAW);
-				multiplayerRenderer.draw(triangleCount);
-				delete[] multiplayerVertexArray;
-
-				size = exp.size() * 24;
-				triangleCount = 0;
-				float* enemyVertexArray = new float[size];
-				index = 0;
-				halfPlayerHeight *= 0.5f;
-				for (int i = 0; i < exp.size(); i++) {
-					float xPos = exp[i] * blockWidth + halfPlayerWidth * 1.5f;
-					float yPos = eyp[i] * blockHeight + halfPlayerHeight;
-					triangleCount += 2;
-					enemyVertexArray[index++] = xPos - halfPlayerWidth;
-					enemyVertexArray[index++] = yPos + halfPlayerHeight;
-					enemyVertexArray[index++] = 0.0f;
-					enemyVertexArray[index++] = 1.0f;
-
-					enemyVertexArray[index++] = xPos - halfPlayerWidth;
-					enemyVertexArray[index++] = yPos - halfPlayerHeight;
-					enemyVertexArray[index++] = 0.0f;
-					enemyVertexArray[index++] = 0.0f;
-
-					enemyVertexArray[index++] = xPos + halfPlayerWidth;
-					enemyVertexArray[index++] = yPos - halfPlayerHeight;
-					enemyVertexArray[index++] = 1.0f;;
-					enemyVertexArray[index++] = 0.0f;
-
-					enemyVertexArray[index++] = xPos + halfPlayerWidth;
-					enemyVertexArray[index++] = yPos + halfPlayerHeight;
-					enemyVertexArray[index++] = 1.0f;
-					enemyVertexArray[index++] = 1.0f;
-
-					enemyVertexArray[index++] = xPos - halfPlayerWidth;
-					enemyVertexArray[index++] = yPos + halfPlayerHeight;
-					enemyVertexArray[index++] = 0.0f;
-					enemyVertexArray[index++] = 1.0f;
-
-					enemyVertexArray[index++] = xPos + halfPlayerWidth;
-					enemyVertexArray[index++] = yPos - halfPlayerHeight;
-					enemyVertexArray[index++] = 1.0f;
-					enemyVertexArray[index++] = 0.0f;
-				}
-				halfPlayerHeight *= 2.0f;
-				enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
-				enemyRenderer.draw(triangleCount);
-				delete[] enemyVertexArray;
-			}
-		}
-		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
-		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
-		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-		indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
-		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
-		grounded = false;
-		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
-			grounded = true;
-		}
-		if (renderer->getKeyDown(GLFW_KEY_LEFT_SHIFT) && grounded) {
-			crouching = true;
-		}
-		else if (grounded) {
-			if (!collide(tilemap[indexY + 1][indexXRightSmall]) && !collide(tilemap[indexY + 1][indexXLeftSmall])) {
-				crouching = false;
-			}
-		}
-		playerRenderer.setBool("isCrouching", crouching);
-
-		playerRenderer.draw(2);
-		if (renderer->getKeyDown(GLFW_KEY_A)) {
-			playerXVel += 1.0f * dt;
-		}
-		if (renderer->getKeyDown(GLFW_KEY_D)) {
-			playerXVel -= 1.0f * dt;
-		}
-		if (renderer->getKeyDown(GLFW_KEY_SPACE)) {
-			jumpKeyCounter += 1;
-		}
-		else {
-			jumpKeyCounter = 0;
-		}
-
-		relativeFPS = 1.0f / (dt * 60.0f);
-		playerXVel *= (powf(0.8, 1.0f / relativeFPS));
-		if (playerXVel > 0.1f) { playerXVel = 0.1f; }
-		if (playerXVel < -0.1f) { playerXVel = -0.1f; }
-		if (abs(playerXVel) <= 0.001f) { playerXVel = 0.0f; }
-
-
-
-		// Modify x position.
-		playerX += playerXVel * dt * 5.0f;
-		indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
-		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
-		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
-		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
-		indexY = static_cast<int>((playerY + halfPlayerHeight * 0.8f) / blockHeight * -1.0f);
-		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
-		indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.25f) / blockHeight * -1.0f);
-
-		// When moving right, check for collisions at the right index.
-		if (playerXVel < 0.0f) {
-			if (collide(tilemap[indexY][indexXRight])) {
-				playerX = halfPlayerWidth - indexXRight * blockWidth;
-				playerXVel = 0.0f;
-			}
-
-		}
-
-		// When moving left, check for collisions at the left index.
-		if (playerXVel > 0.0f) {
-			if (collide(tilemap[indexY][indexXLeft])) {
-				playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
-				playerXVel = 0.0f;
-			}
-
-		}
-		bool onLadder = false;
-		if (!crouching) {
-			// When moving right, check for collisions at the right index.
-			if (playerXVel < 0.0f) {
-				if (collide(tilemap[indexHeadY][indexXRight])) {
-					playerX = halfPlayerWidth - indexXRight * blockWidth;
-					playerXVel = 0.0f;
-				}
-
-			}
-
-			// When moving left, check for collisions at the left index.
-			if (playerXVel > 0.0f) {
-				if (collide(tilemap[indexHeadY][indexXLeft])) {
-					playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
-					playerXVel = 0.0f;
-				}
-			}
-
-			// Check the middle of the player for finer collisions.
-			// When moving right, check for collisions at the right index.
-			if (playerXVel < 0.0f) {
-				if (collide(tilemap[indexMiddle][indexXRight])) {
-					playerX = halfPlayerWidth - indexXRight * blockWidth;
-					playerXVel = 0.0f;
-				}
-			}
-
-			// When moving left, check for collisions at the left index.
-			if (playerXVel > 0.0f) {
-				if (collide(tilemap[indexMiddle][indexXLeft])) {
-					playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
-					playerXVel = 0.0f;
-				}
-			}
-			if (ladder(tilemap[indexMiddle][indexXRightSmall]) || ladder(tilemap[indexMiddle][indexXLeftSmall])) {
-				if (renderer->getKeyDown(GLFW_KEY_W)) {
-					onLadder = true;
-				}
-			}
-		}
-		if (!onLadder) {
-			// Move on the Y-axis
-			playerYVel += dt * 15.0f;
-		}
-		else {
-			playerYVel = -1.5f;
-		}
-		playerY += playerYVel * dt * 0.3f;
 			
-		// Re-calculate what blocks the player is hitting.
-		indexXRight = static_cast<int>((playerX - halfPlayerWidth * 0.99f) / blockWidth * -1.0f);
-		indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-		indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
-		indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-		indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
-		indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
-		indexTop = static_cast<int>((playerY - (blockHeight - halfPlayerHeight) * 2.0f - blockHeight) / blockHeight * -1.0f);
+			map<string, PlayerData> playerData = client.multiplayerData;
+			map<string, EnemyData> enemyData = client.enemyData;
 
-		// If player is travelling down, check if the block in which their feet are is solid.
-		if (playerYVel > 0.0f) {
-			if (collide(tilemap[indexY - 1][indexXRightSmall]) || collide(tilemap[indexY - 1][indexXLeftSmall])) {
-				playerY = -blockHeight * indexY - halfPlayerHeight;
-				playerYVel = 0.0f;
+			size_t validCount = 0;
+			for (const auto& pair : playerData) {
+				if (pair.first != ID) {
+					validCount++;
+				}
 			}
-		}
+			size_t size = validCount * 42;
+			size_t triangleCount = 0;
+			float* multiplayerVertexArray = new float[size];
+			size_t index = 0;
+			for (const auto& pair : playerData) {
+				PlayerData player = pair.second;
+				float xPos = player.x * blockWidth + halfPlayerWidth * 1.5f;
+				float yPos = player.y * blockHeight + halfPlayerHeight;
+				float crouching = 0.0f;
+				float direction = player.direction;
+				float mpFrame = player.frame;
+				if (player.crouching) { crouching = 1.0f; }
+				if (pair.first != ID) {
+					triangleCount += 2;
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
 
-		// If the player is travelling up, check if the block above their head is solid.
-		if (playerYVel < 0.0f) {
-			if (collide(tilemap[indexTop][indexXRightSmall]) || collide(tilemap[indexTop][indexXLeftSmall])) {
-				playerY = -blockHeight * (indexTop - 1);
-				playerYVel = 0.0f;
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+					multiplayerVertexArray[index++] = playerTexOffset;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = playerTexOffset;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
+
+					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
+					multiplayerVertexArray[index++] = 0.0f;
+					multiplayerVertexArray[index++] = 1.0f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
+
+					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
+					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
+					multiplayerVertexArray[index++] = playerTexOffset;
+					multiplayerVertexArray[index++] = 0.5f;
+					multiplayerVertexArray[index++] = crouching;
+					multiplayerVertexArray[index++] = mpFrame;
+					multiplayerVertexArray[index++] = direction;
+				}
+			}
+			multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 21, GL_DYNAMIC_DRAW);
+			multiplayerRenderer.draw(triangleCount);
+			delete[] multiplayerVertexArray;
+
+			validCount = 0;
+			for (const auto& pair : enemyData) {
+				validCount += 1;
+			}
+			triangleCount = 0;
+			float* enemyVertexArray = new float[validCount];
+			index = 0;
+			halfPlayerHeight *= 0.5f;
+			for (const auto& pair : enemyData) {
+				EnemyData enemy = pair.second;
+				float xPos = enemy.x * blockWidth + halfPlayerWidth * 1.5f;
+				float yPos = enemy.y * blockHeight + halfPlayerHeight;
+				triangleCount += 2;
+				enemyVertexArray[index++] = xPos - halfPlayerWidth;
+				enemyVertexArray[index++] = yPos + halfPlayerHeight;
+				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = 1.0f;
+
+				enemyVertexArray[index++] = xPos - halfPlayerWidth;
+				enemyVertexArray[index++] = yPos - halfPlayerHeight;
+				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = 0.0f;
+
+				enemyVertexArray[index++] = xPos + halfPlayerWidth;
+				enemyVertexArray[index++] = yPos - halfPlayerHeight;
+				enemyVertexArray[index++] = 1.0f;;
+				enemyVertexArray[index++] = 0.0f;
+
+				enemyVertexArray[index++] = xPos + halfPlayerWidth;
+				enemyVertexArray[index++] = yPos + halfPlayerHeight;
+				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = 1.0f;
+
+				enemyVertexArray[index++] = xPos - halfPlayerWidth;
+				enemyVertexArray[index++] = yPos + halfPlayerHeight;
+				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = 1.0f;
+
+				enemyVertexArray[index++] = xPos + halfPlayerWidth;
+				enemyVertexArray[index++] = yPos - halfPlayerHeight;
+				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = 0.0f;
+			}
+			halfPlayerHeight *= 2.0f;
+			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
+			enemyRenderer.draw(triangleCount);
+			delete[] enemyVertexArray;
+		
+		}
+		if (doPhysics) {
+			indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+			indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+			indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+			indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+			indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
+			indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+			grounded = false;
+			if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
+				grounded = true;
+			}
+			if (renderer->getKeyDown(GLFW_KEY_LEFT_SHIFT) && grounded) {
+				crouching = true;
+			}
+			else if (grounded) {
+				if (!collide(tilemap[indexY + 1][indexXRightSmall]) && !collide(tilemap[indexY + 1][indexXLeftSmall])) {
+					crouching = false;
+				}
+			}
+			playerRenderer.setBool("isCrouching", crouching);
+
+			playerRenderer.draw(2);
+			if (renderer->getKeyDown(GLFW_KEY_A)) {
+				playerXVel += 1.0f * dt;
+			}
+			if (renderer->getKeyDown(GLFW_KEY_D)) {
+				playerXVel -= 1.0f * dt;
+			}
+			if (renderer->getKeyDown(GLFW_KEY_SPACE)) {
+				jumpKeyCounter += 1;
+			}
+			else {
+				jumpKeyCounter = 0;
 			}
 
-		}
-		/*
-		if (crouching && indexY-3 >= 0 && indexY-3 < tilemap.size() && !grounded && playerYVel > 0.0f) {
-			if (!(collide(tilemap[indexY-3][indexXRightSmall]) || collide(tilemap[indexY-3][indexXLeftSmall]))) {
-				crouching = false;
-			}
-		}*/
+			relativeFPS = 1.0f / (dt * 60.0f);
+			playerXVel *= (powf(0.8, 1.0f / relativeFPS));
+			if (playerXVel > 0.1f) { playerXVel = 0.1f; }
+			if (playerXVel < -0.1f) { playerXVel = -0.1f; }
+			if (abs(playerXVel) <= 0.001f) { playerXVel = 0.0f; }
 
-		// Jump check.
-		grounded = false;
-		if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
-			grounded = true;
-		}
-		if (jumpKeyCounter == 1 && !crouching && grounded) {
-			if (!collide(tilemap[indexTop][indexXRightSmall]) && !collide(tilemap[indexTop][indexXLeftSmall])) {
-				playerYVel = -7.0f;
+
+
+			// Modify x position.
+			playerX += playerXVel * dt * 5.0f;
+			indexXRight = static_cast<int>((playerX - halfPlayerWidth) / blockWidth * -1.0f);
+			indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
+			indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+			indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.85f)) / blockWidth * -1.0f);
+			indexY = static_cast<int>((playerY + halfPlayerHeight * 0.8f) / blockHeight * -1.0f);
+			indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+			indexMiddle = static_cast<int>((playerY - halfPlayerHeight * 0.25f) / blockHeight * -1.0f);
+
+			// When moving right, check for collisions at the right index.
+			if (playerXVel < 0.0f) {
+				if (collide(tilemap[indexY][indexXRight])) {
+					playerX = halfPlayerWidth - indexXRight * blockWidth;
+					playerXVel = 0.0f;
+				}
+
 			}
+
+			// When moving left, check for collisions at the left index.
+			if (playerXVel > 0.0f) {
+				if (collide(tilemap[indexY][indexXLeft])) {
+					playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+					playerXVel = 0.0f;
+				}
+
+			}
+			bool onLadder = false;
+			if (!crouching) {
+				// When moving right, check for collisions at the right index.
+				if (playerXVel < 0.0f) {
+					if (collide(tilemap[indexHeadY][indexXRight])) {
+						playerX = halfPlayerWidth - indexXRight * blockWidth;
+						playerXVel = 0.0f;
+					}
+
+				}
+
+				// When moving left, check for collisions at the left index.
+				if (playerXVel > 0.0f) {
+					if (collide(tilemap[indexHeadY][indexXLeft])) {
+						playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+						playerXVel = 0.0f;
+					}
+				}
+
+				// Check the middle of the player for finer collisions.
+				// When moving right, check for collisions at the right index.
+				if (playerXVel < 0.0f) {
+					if (collide(tilemap[indexMiddle][indexXRight])) {
+						playerX = halfPlayerWidth - indexXRight * blockWidth;
+						playerXVel = 0.0f;
+					}
+				}
+
+				// When moving left, check for collisions at the left index.
+				if (playerXVel > 0.0f) {
+					if (collide(tilemap[indexMiddle][indexXLeft])) {
+						playerX = -indexXLeft * blockWidth - blockWidth - halfPlayerWidth;
+						playerXVel = 0.0f;
+					}
+				}
+				if (ladder(tilemap[indexMiddle][indexXRightSmall]) || ladder(tilemap[indexMiddle][indexXLeftSmall])) {
+					if (renderer->getKeyDown(GLFW_KEY_W)) {
+						onLadder = true;
+					}
+				}
+			}
+			if (!onLadder) {
+				// Move on the Y-axis
+				playerYVel += dt * 15.0f;
+			}
+			else {
+				playerYVel = -1.5f;
+			}
+			playerY += playerYVel * dt * 0.3f;
+
+			// Re-calculate what blocks the player is hitting.
+			indexXRight = static_cast<int>((playerX - halfPlayerWidth * 0.99f) / blockWidth * -1.0f);
+			indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+			indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
+			indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
+			indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
+			indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
+			indexTop = static_cast<int>((playerY - (blockHeight - halfPlayerHeight) * 2.0f - blockHeight) / blockHeight * -1.0f);
+
+			// If player is travelling down, check if the block in which their feet are is solid.
+			if (playerYVel > 0.0f) {
+				if (collide(tilemap[indexY - 1][indexXRightSmall]) || collide(tilemap[indexY - 1][indexXLeftSmall])) {
+					playerY = -blockHeight * indexY - halfPlayerHeight;
+					playerYVel = 0.0f;
+				}
+			}
+
+			// If the player is travelling up, check if the block above their head is solid.
+			if (playerYVel < 0.0f) {
+				if (collide(tilemap[indexTop][indexXRightSmall]) || collide(tilemap[indexTop][indexXLeftSmall])) {
+					playerY = -blockHeight * (indexTop - 1);
+					playerYVel = 0.0f;
+				}
+
+			}
+			/*
+			if (crouching && indexY-3 >= 0 && indexY-3 < tilemap.size() && !grounded && playerYVel > 0.0f) {
+				if (!(collide(tilemap[indexY-3][indexXRightSmall]) || collide(tilemap[indexY-3][indexXLeftSmall]))) {
+					crouching = false;
+				}
+			}*/
+
+			// Jump check.
+			grounded = false;
+			if (collide(tilemap[indexY - 1][indexXRight]) || collide(tilemap[indexY - 1][indexXLeft])) {
+				grounded = true;
+			}
+			if (jumpKeyCounter == 1 && !crouching && grounded) {
+				if (!collide(tilemap[indexTop][indexXRightSmall]) && !collide(tilemap[indexTop][indexXLeftSmall])) {
+					playerYVel = -7.0f;
+				}
+			}
+			// Draw screen.
+			renderer->updateDisplay();
 		}
-		// Draw screen.
-		renderer->updateDisplay();
 	}
 	client.terminate();
 	if (doMultiplayer) {

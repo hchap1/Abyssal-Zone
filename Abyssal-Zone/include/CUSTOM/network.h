@@ -7,7 +7,13 @@
 #include <algorithm>
 #include "CUSTOM/renderer.h"
 #include "CUSTOM/packet.h"
+#include <map>
+#include <cmath>
 using namespace std;
+
+float r4dp(float number) {
+    return std::round(number * 10000.0) / 10000.0;
+}
 
 string encodeIP(string IP, int port) {
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -35,8 +41,34 @@ tuple<string, int> decodeIP(string encoded) {
     return make_tuple("192.168." + a + "." + b, port);
 }
 
+class PlayerData {
+public:
+    float x, y;
+    bool crouching;
+    int frame, direction;
+    string name;
+    PlayerData() : x(0.0f), y(0.0f), crouching(false), frame(0), direction(0) {}
+    PlayerData(float x, float y, bool crouching, int frame, int direction) : x(x), y(y), 
+        crouching(crouching), frame(frame), direction(direction) {
+
+    }
+};
+
+class EnemyData {
+public:
+    float x, y;
+    EnemyData() : x(0.0f), y(0.0f) {}
+    EnemyData(float x, float y) : x(x), y(y) {
+
+    }
+};
+
 class Client {
 public:
+    //  name    data
+    map<string, PlayerData> multiplayerData;
+    map<string, EnemyData> enemyData;
+
     Client() {}
     Client(string joinCode, float halfPlayerWidth, 
         float halfPlayerHeight, float* px, float* py, 
@@ -62,31 +94,10 @@ public:
         serverAddr.sin_port = htons(get<1>(serverData));
         connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
     }
+
     void recvData() {
-        bool receivedInitial = false;
-        while (!receivedInitial) {
-            char i_buffer[1048576];
-            int i_bytesReceived = recv(clientSocket, i_buffer, sizeof(i_buffer) - 1, 0);
-            if (i_bytesReceived == 0) {
-                cout << "Connection closed by server before first packet." << std::endl;
-                running = false;
-            }
-            else if (i_bytesReceived == -1) {
-                cout << "Connection closed before first packet. ERR: " << WSAGetLastError() << endl;
-                running = false;
-            }
-            else {
-                i_buffer[i_bytesReceived] = '\0';
-                string message(i_buffer);
-                if (!message.empty()) {
-                    if (message.substr(0, 9) == "<initial>") {
-                        *RCV_str = message;
-                        *RCV = true;
-                        receivedInitial = true;
-                    }
-                }
-            }
-        }
+        string tilemap_buffer = "";
+        string coord_buffer = "";
         while (running) {
             char buffer[1024];
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
@@ -102,17 +113,91 @@ public:
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
                 if (!message.empty()) {
-                    Packet packet(message);
-                    playerCrouchingBools = packet.playerCrouchingBools;
-                    playerXPositions = packet.playerXPositions;
-                    playerYPositions = packet.playerYPositions;
-                    playerFrames = packet.playerFrames;
-                    playerDirections = packet.playerDirections;
-                    playerIDs = packet.playerIDs;
-                    enemyXPositions = packet.enemyXPositions;
-                    enemyYPositions = packet.enemyYPositions;
-                    enemyNames = packet.enemyNames;
-                    hasVertexData = true;
+                    string identifier = splitString(message, '>')[0];
+                    string data = splitString(splitString(message, '>')[1], '!')[0];
+
+                    cout << "Received " << identifier << " containing " << data << endl;
+
+                    // Entire tilemap sent over...
+                    if (identifier == "tilemap_info") {
+                        if (data == "1") {
+                            tilemap_buffer = "";
+                            coord_buffer = "";
+                        }
+                        if (data == "0") {
+                            tilemap_buffer[tilemap_buffer.length() - 1] = '!';
+                            *RCV_str = "initial>" + coord_buffer + "|" + tilemap_buffer;
+                            *RCV = true;
+                        }
+                    }
+                    // Spawn coordinates in format x,y
+                    if (identifier == "sp") {
+                        coord_buffer = data;
+                    }
+                    // Entire tilemap row
+                    if (identifier == "tmr") {
+                        tilemap_buffer += data + "/";
+                    }
+
+                    // Block changed
+                    if (identifier == "bc") {
+
+                    }
+
+                    // Player connected
+                    if (identifier == "pcon") {
+                        multiplayerData[data] = PlayerData(0.0f, 0.0f, true, 0, 0);
+                    }
+                    // Player disconnected
+                    if (identifier == "pdis") {
+                        multiplayerData.erase(data);
+                    }
+                    // Player position packet
+                    if (identifier == "pp") {
+                        vector<string> components = splitString(data, ',');
+                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                            multiplayerData[components[0]].x = stof(components[1]);
+                            multiplayerData[components[0]].y = stof(components[2]);
+                        }
+                    }
+                    // Player frame update
+                    if (identifier == "pf") {
+                        vector<string> components = splitString(data, ',');
+                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                            multiplayerData[components[0]].frame = stoi(components[1]);
+                        }
+                    }
+                    // Player crouching update
+                    if (identifier == "pc") {
+                        vector<string> components = splitString(data, ',');
+                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                            multiplayerData[components[0]].crouching = components[1] == "1";
+                        }
+                    }
+                    // Player direction update
+                    if (identifier == "pd") {
+                        vector<string> components = splitString(data, ',');
+                        if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                            multiplayerData[components[0]].direction = stoi(components[1]);
+                        }
+                    }
+
+                    // New enemy
+                    if (identifier == "ne") {
+                        enemyData[data] = EnemyData(0.0f, 0.0f);
+                    }
+                    // Delete enemy
+                    if (identifier == "de") {
+                        enemyData.erase(data);
+                    }
+                    // Enemy position packet
+                    if (identifier == "ep") {
+                        vector<string> components = splitString(data, ',');
+                        if (enemyData.find(components[0]) != enemyData.end()) {
+                            enemyData[components[0]].x = stof(components[1]);
+                            enemyData[components[0]].y = stof(components[2]);
+                        }
+                    }
                 }
             }
         }
@@ -126,16 +211,41 @@ public:
 
     void sendData() {
         while (running) {
-            this_thread::sleep_for(chrono::milliseconds(16));
-            string crString = "0";
-            if (*crouching) { crString = "1"; }
-            string message = to_string((*playerX + hpw * 1.5f) / (-blockWidth)) + "," + to_string((*playerY + hph) / (-blockHeight)) + "," + crString + "," + to_string(static_cast<int>(*frame)) + "," + to_string(static_cast<int>(*direction)) + "," + ID + "!";
-            int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            this_thread::sleep_for(chrono::milliseconds(10));
+            // Positional update
+            if (*playerX != lastState.x || *playerY != lastState.y) {
+                string message = "pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
+            this_thread::sleep_for(chrono::milliseconds(2));
+            if (*frame != lastState.frame) {
+                string message = "pf>" + ID + "," + to_string(*frame) + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
+            this_thread::sleep_for(chrono::milliseconds(2));
+            if (*direction != lastState.direction) {
+                string message = "pd>" + ID + "," + to_string(*direction) + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
+            this_thread::sleep_for(chrono::milliseconds(2));
+            if (*crouching != lastState.crouching) {
+                string crString = "0";
+                if (*crouching) { crString = "1"; }
+                string message = "pc>" + ID + "," + crString + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
+            lastState.x = *playerX;
+            lastState.y = *playerY;
+            lastState.crouching = *crouching;
+            lastState.direction = *direction;
+            lastState.frame = *frame;
         }
     }
 
-    tuple<vector<float>, vector<float>, vector<bool>, vector<float>, vector<float>, vector<string>, bool, vector<float>, vector<float>, vector<string>> getVertexArray() {
-        return make_tuple(playerXPositions, playerYPositions, playerCrouchingBools, playerFrames, playerDirections, playerIDs, hasVertexData, enemyXPositions, enemyYPositions, enemyNames);
+    void ssendData() {
+        while (running) {
+            this_thread::sleep_for(chrono::milliseconds(10));
+        }
     }
 	
 private:
@@ -152,26 +262,11 @@ private:
     float* frame;
     float* direction;
     int playerCount;
-    vector<vector<int>>* tilemap;
-    RenderLayer* tilemapRenderer;
-    int* windowWidth;
-    int* windowHeight;
-    float* blocksize;
+
     float blockWidth;
     float blockHeight;
-    float* t;
-
-    vector<float> playerXPositions;
-    vector<float> playerYPositions;
-    vector<bool> playerCrouchingBools;
-    vector<float> playerFrames;
-    vector<float> playerDirections;
-    vector<string> playerIDs;
-    vector<float> enemyXPositions;
-    vector<float> enemyYPositions;
-    vector<string> enemyNames;
+    PlayerData lastState;
 
     bool* RCV;
     string* RCV_str;
-    bool hasVertexData;
 };
