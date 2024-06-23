@@ -179,12 +179,12 @@ public:
                             if (multiplayerData.find(data) == multiplayerData.end()) {
                                 multiplayerData[data] = PlayerData();
                             }
-                            string reply = "<pexi>" + ID + "!";
+                            string reply = "<pexi>" + ID + "!" + "<pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";;
                             send(clientSocket, reply.data(), strlen(reply.data()), 0);
                         }
                         // Player replying to connection packet
                         if (identifier == "pexi" && data != ID) {
-                            if (multiplayerData.find(data) == multiplayerData.end()) {
+                            if (multiplayerData.find(data) == multiplayerData.end() || true) {
                                 multiplayerData[data] = PlayerData();
                             }
                         }
@@ -235,7 +235,6 @@ public:
                         }
                         // Enemy position packet
                         if (identifier == "ep") {
-                            cout << "Enemy position update -> " << data << endl;
                             vector<string> components = splitString(data, ',');
                             if (enemyData.find(components[0]) != enemyData.end()) {
                                 enemyData[components[0]].x = stof(components[1]);
@@ -255,7 +254,7 @@ public:
     int getPlayerCount() { return playerCount; }
 
     void sendData() {
-        string m = "<pcon>" + ID + "!";
+        string m = "<pcon>" + ID + "!" + "<pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";
         int initalSend = send(clientSocket, m.data(), strlen(m.data()), 0);
         this_thread::sleep_for(chrono::milliseconds(10));
         while (running) {
