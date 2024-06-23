@@ -365,7 +365,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					validCount++;
 				}
 			}
-			size_t size = validCount * 42;
+			size_t size = validCount * 48;
 			size_t triangleCount = 0;
 			float* multiplayerVertexArray = new float[size];
 			size_t index = 0;
@@ -376,6 +376,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				float crouching = 0.0f;
 				float direction = player.direction;
 				float mpFrame = player.frame;
+				float red = 0.0f;
+				if (player.isRed) { red = 1.0f; }
 				if (player.crouching) { crouching = 1.0f; }
 				if (pair.first != ID) {
 					triangleCount += 2;
@@ -386,6 +388,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 
 					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
@@ -394,6 +397,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 
 					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
@@ -402,6 +406,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 
 					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
@@ -410,6 +415,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 
 					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
@@ -418,6 +424,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 
 					multiplayerVertexArray[index++] = xPos + halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos - halfPlayerHeight;
@@ -426,9 +433,10 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					multiplayerVertexArray[index++] = crouching;
 					multiplayerVertexArray[index++] = mpFrame;
 					multiplayerVertexArray[index++] = direction;
+					multiplayerVertexArray[index++] = red;
 				}
 			}
-			multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 21, GL_DYNAMIC_DRAW);
+			multiplayerRenderer.setVertices(multiplayerVertexArray, triangleCount, 24, GL_DYNAMIC_DRAW);
 			multiplayerRenderer.draw(triangleCount);
 			delete[] multiplayerVertexArray;
 

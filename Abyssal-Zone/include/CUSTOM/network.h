@@ -80,12 +80,12 @@ tuple<string, int> decodeIP(string encoded) {
 class PlayerData {
 public:
     float x, y;
-    bool crouching;
+    bool crouching, isRed;
     int frame, direction;
     string name;
-    PlayerData() : x(0.0f), y(0.0f), crouching(false), frame(0), direction(0) {}
-    PlayerData(float x, float y, bool crouching, int frame, int direction) : x(x), y(y), 
-        crouching(crouching), frame(frame), direction(direction) {
+    PlayerData() : x(0.0f), y(0.0f), crouching(false), frame(0), direction(0), isRed(false) {}
+    PlayerData(float x, float y, bool crouching, int frame, int direction, bool isRed) : x(x), y(y), 
+        crouching(crouching), frame(frame), direction(direction), isRed(isRed) {
 
     }
 };
@@ -234,6 +234,12 @@ public:
                             if (components[0] == ID) {
                                 *health += stoi(components[1]);
                                 *rFT = 0.5f;
+                            }
+                        }
+                        if (identifier == "pr") {
+                            vector<string> components = splitString(data, ',');
+                            if (multiplayerData.find(components[0]) != multiplayerData.end()) {
+                                multiplayerData[components[0]].isRed = components[1] == "1";
                             }
                         }
 
