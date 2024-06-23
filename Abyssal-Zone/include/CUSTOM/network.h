@@ -302,11 +302,20 @@ public:
                 string message = "<pdis>" + ID + "!";
                 int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
             }
+            if (*rFT > 0.0f != lastState.isRed) {
+                string bStr = "0";
+                if (*rFT > 0.0f) {
+                    bStr = "1";
+                }
+                string message = "<pdis>" + ID + "," + bStr + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
             lastState.x = *playerX;
             lastState.y = *playerY;
             lastState.crouching = *crouching;
             lastState.direction = *direction;
             lastState.frame = *frame;
+            lastState.isRed = *rFT > 0.0f;
         }
     }
 	
