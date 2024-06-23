@@ -147,6 +147,7 @@ public:
                     for (string packet : packets) {
                         string identifier = splitString(packet, '>')[0].substr(1);
                         string data = splitString(splitString(packet, '>')[1], '!')[0];
+                        cout << "ID: " << identifier << " -> " << data << endl;
                         // Entire tilemap sent over...
                         if (identifier == "tilemap_info") {
                             if (data == "1") {
@@ -174,13 +175,17 @@ public:
                         }
 
                         // Player connected
-                        if (identifier == "pcon") {
+                        if (identifier == "pcon" && data != ID) {
                             if (multiplayerData.find(data) == multiplayerData.end()) {
                                 multiplayerData[data] = PlayerData();
                             }
-                            if (data != ID) {
-                                string reply = "<pcon>" + ID + "!";
-                                send(clientSocket, reply.data(), strlen(reply.data()), 0);
+                            string reply = "<pexi>" + ID + "!";
+                            send(clientSocket, reply.data(), strlen(reply.data()), 0);
+                        }
+                        // Player replying to connection packet
+                        if (identifier == "pexi" && data != ID) {
+                            if (multiplayerData.find(data) == multiplayerData.end()) {
+                                multiplayerData[data] = PlayerData();
                             }
                         }
                         // Player disconnected
