@@ -429,7 +429,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				validCount += 1;
 			}
 			triangleCount = 0;
-			float* enemyVertexArray = new float[validCount];
+			float* enemyVertexArray = new float[validCount * 24];
 			index = 0;
 			halfPlayerHeight *= 0.5f;
 			for (const auto& pair : enemyData) {

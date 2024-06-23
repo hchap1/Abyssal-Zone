@@ -142,14 +142,11 @@ public:
             else {
                 buffer[bytesReceived] = '\0';
                 string message(buffer);
-                cout << "RAW: " << message << endl;
                 if (!message.empty()) {
                     vector<string> packets = split_with_delimiter(message, "!");
                     for (string packet : packets) {
-                        cout << "... -> " << packet << endl;
                         string identifier = splitString(packet, '>')[0].substr(1);
                         string data = splitString(splitString(packet, '>')[1], '!')[0];
-                    
                         // Entire tilemap sent over...
                         if (identifier == "tilemap_info") {
                             if (data == "1") {
@@ -178,7 +175,13 @@ public:
 
                         // Player connected
                         if (identifier == "pcon") {
-                            multiplayerData[data] = PlayerData(0.0f, 0.0f, true, 0, 0);
+                            if (multiplayerData.find(data) == multiplayerData.end()) {
+                                multiplayerData[data] = PlayerData();
+                            }
+                            if (data != ID) {
+                                string reply = "<pcon>" + ID + "!";
+                                send(clientSocket, reply.data(), strlen(reply.data()), 0);
+                            }
                         }
                         // Player disconnected
                         if (identifier == "pdis") {
@@ -216,7 +219,10 @@ public:
 
                         // New enemy
                         if (identifier == "ne") {
-                            enemyData[data] = EnemyData(0.0f, 0.0f);
+                            if (enemyData.find(data) == enemyData.end()) {
+                                enemyData[data] = EnemyData();
+                            }
+                            cout << "Received new enemy: " << data << endl;
                         }
                         // Delete enemy
                         if (identifier == "de") {
@@ -224,6 +230,7 @@ public:
                         }
                         // Enemy position packet
                         if (identifier == "ep") {
+                            cout << "Enemy position update -> " << data << endl;
                             vector<string> components = splitString(data, ',');
                             if (enemyData.find(components[0]) != enemyData.end()) {
                                 enemyData[components[0]].x = stof(components[1]);
