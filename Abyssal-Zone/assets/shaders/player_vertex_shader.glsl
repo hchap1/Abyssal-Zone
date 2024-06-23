@@ -21,6 +21,7 @@ uniform float lightConstant;
 uniform float frame;
 uniform float texOffset;
 uniform float torchLight;
+uniform bool isHurt;
 
 uniform float zoom;
 uniform bool isCrouching;
@@ -64,7 +65,14 @@ void main(){
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);
 	float centerBrightness = (pow(sin(dx)*sin(dy), 7)) * 50;
-	redBrightness = (RGB.x + centerBrightness) * lightScale * 1.7;
-	greenBrightness = (RGB.y + centerBrightness) * lightScale;
-	blueBrightness = (RGB.z + centerBrightness) * lightScale;
+	if (isHurt) {
+		redBrightness = (RGB.x + centerBrightness) * lightScale * 5.0;
+		greenBrightness = (RGB.y + centerBrightness) * lightScale * 0.5;
+		blueBrightness = (RGB.z + centerBrightness) * lightScale * 0.5;
+	}
+	else {
+		redBrightness = (RGB.x + centerBrightness) * lightScale * 1.7;
+		greenBrightness = (RGB.y + centerBrightness) * lightScale;
+		blueBrightness = (RGB.z + centerBrightness) * lightScale;
+	}
 }

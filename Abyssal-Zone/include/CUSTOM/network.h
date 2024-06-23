@@ -110,10 +110,10 @@ public:
         float halfPlayerHeight, float* px, float* py, 
         bool* ic, float* frame, float* direction,
         string ID, bool* RCV, string* RCV_str, float blockWidth, 
-        float blockHeight, int* health) : frame(frame),
+        float blockHeight, int* health, float* rFT) : frame(frame),
         direction(direction), ID(ID), RCV(RCV), RCV_str(RCV_str),
         blockWidth(blockWidth), blockHeight(blockHeight),
-        health(health){
+        health(health), rFT(rFT){
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -233,7 +233,7 @@ public:
                             vector<string> components = splitString(data, ',');
                             if (components[0] == ID) {
                                 *health += stoi(components[1]);
-                                cout << "!!! Took " << components[1] << " damage !!! ...health = " << *health << endl;
+                                *rFT = 0.5f;
                             }
                         }
 
@@ -318,7 +318,7 @@ private:
     float* frame;
     float* direction;
     int playerCount;
-
+    float* rFT;
     float blockWidth;
     float blockHeight;
     PlayerData lastState;

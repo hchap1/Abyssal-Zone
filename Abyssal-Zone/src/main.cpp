@@ -148,6 +148,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float dir;
 
 	int health = 100;
+	float rFT = 0.0f;
 
 	bool RCV = false;
 	bool doPhysics = false;
@@ -175,7 +176,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
-			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight, &health);
+			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight, &health, &rFT);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -236,6 +237,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			break;
 		}
 		dt = renderer->getDeltaTime();
+		if (rFT > 0.0f) { rFT -= dt; }
 		frameTimer -= dt;
 		cycleCount += dt;
 		if (cycleCount > 0.1f) { animationCycle += 1.0f; cycleCount = 0.0f; tilemapRenderer.setFloat("torchLight", distribution2(gen) / 100.0f); }
@@ -254,6 +256,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		enemyRenderer.setFloat("lightConstant", 1.0f);
 		enemyRenderer.setFloat("frame", animationCycle);
 		timeUntilFlicker -= dt;
+		playerRenderer.setBool("isHurt", rFT > 0.0f);
 		if (flickerTimer > 0.0f) {
 			flickerTimer -= dt;
 			if (flickerTimer > 0.2f) {
