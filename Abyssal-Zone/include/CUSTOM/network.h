@@ -109,9 +109,11 @@ public:
     Client(string joinCode, float halfPlayerWidth, 
         float halfPlayerHeight, float* px, float* py, 
         bool* ic, float* frame, float* direction,
-        string ID, bool* RCV, string* RCV_str, float blockWidth, float blockHeight) : frame(frame), 
+        string ID, bool* RCV, string* RCV_str, float blockWidth, 
+        float blockHeight, int* health) : frame(frame),
         direction(direction), ID(ID), RCV(RCV), RCV_str(RCV_str),
-        blockWidth(blockWidth), blockHeight(blockHeight) {
+        blockWidth(blockWidth), blockHeight(blockHeight),
+        health(health){
         hpw = halfPlayerWidth;
         hph = halfPlayerHeight;
         playerX = px;
@@ -135,7 +137,7 @@ public:
         string tilemap_buffer = "";
         string coord_buffer = "";
         while (running) {
-            char buffer[4096];
+            char buffer[500000];
             int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
             if (bytesReceived == 0) {
                 cout << "Connection closed by server." << std::endl;
@@ -153,7 +155,6 @@ public:
                     for (string packet : packets) {
                         string identifier = splitString(packet, '>')[0].substr(1);
                         string data = splitString(splitString(packet, '>')[1], '!')[0];
-                        cout << "ID: " << identifier << " -> " << data << endl;
                         // Entire tilemap sent over...
                         if (identifier == "tilemap_info") {
                             if (data == "1") {
@@ -227,15 +228,22 @@ public:
                                 multiplayerData[components[0]].direction = stoi(components[1]);
                             }
                         }
+                        // Health packet
+                        if (identifier == "ph") {
+                            vector<string> components = splitString(data, ',');
+                            if (components[0] == ID) {
+                                *health += stoi(components[1]);
+                                cout << "!!! Took " << components[1] << " damage !!! ...health = " << *health << endl;
+                            }
+                        }
 
                         // New enemy
                         if (identifier == "ne") {
                             if (enemyData.find(data) == enemyData.end()) {
                                 enemyData[data] = EnemyData();
                             }
-                            cout << "Received new enemy: " << data << endl;
                         }
-                        // Delete enemyaaaaaaaa
+                        // Delete enemy
                         if (identifier == "de") {
                             enemyData.erase(data);
                         }
@@ -284,6 +292,10 @@ public:
                 string message = "<pc>" + ID + "," + crString + "!";
                 int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
             }
+            if (*health <= 0) {
+                string message = "<pdis>" + ID + "!";
+                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+            }
             lastState.x = *playerX;
             lastState.y = *playerY;
             lastState.crouching = *crouching;
@@ -312,5 +324,6 @@ private:
     PlayerData lastState;
 
     bool* RCV;
+    int* health;
     string* RCV_str;
 };

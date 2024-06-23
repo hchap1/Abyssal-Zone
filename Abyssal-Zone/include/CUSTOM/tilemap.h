@@ -16,7 +16,7 @@ tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
     }
 
     vector<vector<int>> tilemap;
-    static float lightArray[64][4] = {};
+    static float lightArray[256][4] = {};
     string line;
     int yCount = 0;
     int xCount = 0;
@@ -29,7 +29,7 @@ tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
             if (number > 7) {
                 number += 7;
             }
-            if ((number == 3 || number == 7) && index < 64) {
+            if ((number == 3 || number == 7) && index < 256) {
                 // x, y, number, brightness
                 lightArray[index][0] = static_cast<float>(xCount);
                 lightArray[index][1] = static_cast<float>(yCount);
@@ -63,7 +63,7 @@ int* loadLevelData(int levelID) {
 }
 
 tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromString(string message) {
-    static float lightArray[64][4] = {};
+    static float lightArray[256][4] = {};
     vector<string> data = splitString(message, '|');
     string tilemapString = splitString(data[1], '!')[0];
     vector<vector<int>> newTilemap;
@@ -82,7 +82,7 @@ tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromString(string messag
             if (t > 7) {
                 t += 7;
             }
-            if ((t == 3 || t == 7) && index < 64) {
+            if ((t == 3 || t == 7) && index < 256) {
                 // x, y, number, brightness
                 lightArray[index][0] = static_cast<float>(xCount);
                 lightArray[index][1] = static_cast<float>(yCount);

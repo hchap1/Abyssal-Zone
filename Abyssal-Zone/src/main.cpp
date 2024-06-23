@@ -147,6 +147,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float frame = 0.0f;
 	float dir;
 
+	int health = 100;
+
 	bool RCV = false;
 	bool doPhysics = false;
 	string RCV_str = "";
@@ -173,7 +175,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
-			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight);
+			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight, &health);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
 		sendThread = thread(&Client::sendData, &client);
@@ -230,7 +232,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	glfwSwapInterval(1);
 	dt = renderer->getDeltaTime();
 	while (renderer->isRunning()) {
-		
+		if (health <= 0) {
+			break;
+		}
 		dt = renderer->getDeltaTime();
 		frameTimer -= dt;
 		cycleCount += dt;
@@ -643,6 +647,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	client.terminate();
 	if (doMultiplayer) {
 		recvThread.join();
+		sendThread.join();
 	}
 	return 0;
 }
