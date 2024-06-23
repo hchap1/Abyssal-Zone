@@ -60,15 +60,21 @@ string encodeIP(string IP, int port) {
 }
 
 tuple<string, int> decodeIP(string encoded) {
-    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    size_t dotIndex = alphabet.find(encoded[0]);
-    size_t portIndex = alphabet.find(encoded[1]);
-    string IPstr = encoded.substr(2);
-    int port = stoi(IPstr.substr(portIndex));
-    IPstr.replace(portIndex, IPstr.length() - portIndex, "");
-    string a = IPstr.substr(0, dotIndex);
-    string b = IPstr.substr(dotIndex);
-    return make_tuple("192.168." + a + "." + b, port);
+    if (encoded.find('.') == std::string::npos) {
+        string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        size_t dotIndex = alphabet.find(encoded[0]);
+        size_t portIndex = alphabet.find(encoded[1]);
+        string IPstr = encoded.substr(2);
+        int port = stoi(IPstr.substr(portIndex));
+        IPstr.replace(portIndex, IPstr.length() - portIndex, "");
+        string a = IPstr.substr(0, dotIndex);
+        string b = IPstr.substr(dotIndex);
+        return make_tuple("192.168." + a + "." + b, port);
+    }
+    else {
+        vector<string> components = splitString(encoded, ':');
+        return make_tuple(components[0], stoi(components[1]));
+    }
 }
 
 class PlayerData {
@@ -229,7 +235,7 @@ public:
                             }
                             cout << "Received new enemy: " << data << endl;
                         }
-                        // Delete enemy
+                        // Delete enemyaaaaaaaa
                         if (identifier == "de") {
                             enemyData.erase(data);
                         }

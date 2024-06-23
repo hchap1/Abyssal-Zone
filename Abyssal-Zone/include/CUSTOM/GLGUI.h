@@ -193,5 +193,5 @@ private:
 	int buttonTriangleCount;
 	float buttonSize;
 	float textSize;
-	string fontCharacters = "ABCDEFGH0123456789";
+	string fontCharacters = "ABCDEFGH0123456789.:";
 };

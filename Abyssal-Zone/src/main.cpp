@@ -37,9 +37,13 @@ char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
 	else if (glfwKeyCode >= GLFW_KEY_0 && glfwKeyCode <= GLFW_KEY_9) {
 		return static_cast<char>('0' + (glfwKeyCode - GLFW_KEY_0));
 	}
-	else {
-		return '\0';
+	if (glfwKeyCode == GLFW_KEY_PERIOD) {
+		return '.';
 	}
+	if (glfwKeyCode == GLFW_KEY_SEMICOLON) {
+		return ':';
+	}
+	return '\0';
 }
 
 tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Text> texts, string pageID) {
@@ -57,6 +61,10 @@ tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Te
 		keyTracker.push_back(0);
 		glfwKeyCodes.push_back(i);
 	}
+	glfwKeyCodes.push_back(GLFW_KEY_PERIOD);
+	glfwKeyCodes.push_back(GLFW_KEY_SEMICOLON);
+	keyTracker.push_back(0);
+	keyTracker.push_back(0);
 
 	glfwSwapInterval(1);
 	while (running) {
@@ -165,13 +173,6 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
-			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight);
-		doMultiplayer = true;
-		recvThread = thread(&Client::recvData, &client);
-		sendThread = thread(&Client::sendData, &client);
-	}
-	else {
-		client = Client("--local", halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame,
 			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight);
 		doMultiplayer = true;
 		recvThread = thread(&Client::recvData, &client);
