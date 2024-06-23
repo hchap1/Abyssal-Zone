@@ -282,10 +282,10 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			flickerTimer = flickerDuration;
 		}
 		if (renderer->getKeyDown(GLFW_KEY_I)) {
-			zoom -= dt;
+			//zoom -= dt;
 		}
 		else if (renderer->getKeyDown(GLFW_KEY_O)) {
-			zoom += dt;
+			//zoom += dt;
 		}
 		if (renderer->getKeyDown(GLFW_KEY_K)) {
 			lightScale -= dt;
