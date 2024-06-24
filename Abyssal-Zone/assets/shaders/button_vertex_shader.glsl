@@ -7,14 +7,13 @@ out vec2 TexCoord;
 
 uniform float mouseX;
 uniform float mouseY;
-uniform float offset;
 
 void main(){
 	vec4 shiftedPosition = vec4(aPos.x, aPos.y, 1.0, 1.0);
 	gl_Position = shiftedPosition;
 	vec2 texCoord = aTexCoord;
 	if (isHover == 1.0) {
-		texCoord = vec2(aTexCoord.x, aTexCoord.y + offset);
+		texCoord = vec2(aTexCoord.x, aTexCoord.y + 0.5);
 	}
 	else {
 		texCoord = vec2(aTexCoord.x, aTexCoord.y);

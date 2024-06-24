@@ -8,7 +8,7 @@
 #include "CUSTOM/network.h"
 #include "CUSTOM/GLGUI.h"
 #include <windows.h>
-
+#include <map>
 using namespace std;
 
 int windowWidth = 1920;
@@ -44,6 +44,34 @@ char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
 		return ':';
 	}
 	return '\0';
+}
+
+string getChoice(Renderer* renderer, string question, vector<string> options) {
+	map<int, string> IDmap;
+	vector<MenuButton> buttons;
+	float currentY = 0.45f;
+	int i = 0;
+	for (string option : options) {
+		MenuButton button(0.0f, currentY, i, 0.1f, option);
+		buttons.push_back(button);
+		IDmap[i] = option;
+		i++;
+		currentY -= 0.3f;
+	}
+	vector<Text> texts;
+	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
+	MenuWindow window(buttons, 8, texts, renderer);
+	glfwSwapInterval(1);
+	bool running = true;
+	while (running) {
+		bool mouseDown = renderer->mouseWasJustClicked();
+		renderer->fillScreen(0, 20, 60);
+		int buttonPressed = window.draw(renderer->mouseX, renderer->mouseY);
+		if (buttonPressed != -1 && mouseDown) {
+			return IDmap[buttonPressed];
+		}
+		renderer->updateDisplay();
+	}
 }
 
 tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Text> texts, string pageID) {
@@ -153,6 +181,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	bool RCV = false;
 	bool doPhysics = false;
 	string RCV_str = "";
+
+	float footstepTimer = 0.2f;
 	
 	dt = renderer->getDeltaTime();
 
@@ -163,7 +193,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
-	RenderLayer multiplayerRenderer({ 2, 2, 1, 1, 1 }, "multiplayer", "player_texture", true);
+	RenderLayer multiplayerRenderer({ 2, 2, 1, 1, 1, 1 }, "multiplayer", "player_texture", true);
 	RenderLayer enemyRenderer({ 2, 2 }, "enemy", "enemies", true);
 
 	bool doMultiplayer = false;
@@ -237,6 +267,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			break;
 		}
 		dt = renderer->getDeltaTime();
+		footstepTimer -= dt;
 		if (rFT > 0.0f) { rFT -= dt; }
 		frameTimer -= dt;
 		cycleCount += dt;
@@ -651,6 +682,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 					playerYVel = -7.0f;
 				}
 			}
+			if (grounded && playerXVel != 0.0f && footstepTimer <= 0.0f) {
+				footstepTimer = 0.2f;
+			}
 			// Draw screen.
 			renderer->updateDisplay();
 		}
@@ -662,7 +696,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	}
 	return 0;
 }
-
+/*
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	//game("CE519869", &renderer, "bob");
@@ -683,7 +717,7 @@ int main() {
 		if (action == 1) {
 			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
 											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "BE412450000", 0.1f) } ;
+			pageText = vector<Text>{ Text(0.0f, 0.6f, "10.147.17.85:50000", 0.1f) } ;
 			pageID = "multiplayer";
 		}
 		if (action == 2) {
@@ -701,6 +735,20 @@ int main() {
 				                              MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
 			pageText = vector<Text>{ Text(0.0f, 0.6f, "", 0.1f) };
 			pageID = "join";
+		}
+	}
+	return 0;
+}
+*/
+
+int main() {
+	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
+	//game("BE412450000", &renderer, "testplayer");
+	string choice = getChoice(&renderer, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
+	if (choice == "JOIN GAME") {
+		choice = getChoice(&renderer, "LAN OR ZEROTIER", { "LAN", "ZERO TIER", "BACK" });
+		if (choice == "LAN") {
+			
 		}
 	}
 	return 0;

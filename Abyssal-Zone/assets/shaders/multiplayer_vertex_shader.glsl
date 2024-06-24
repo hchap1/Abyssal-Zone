@@ -4,6 +4,7 @@ layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in float crouching;
 layout (location = 3) in float frame;
 layout (location = 4) in float direction;
+layout (location = 5) in float red;
 
 out vec2 TexCoord;
 
@@ -61,7 +62,7 @@ void main(){
 	float dx = 1-clamp(abs((x * screenX) / 1000.0), 0.0, 1.0);
 	float dy = 1-clamp(abs((y * screenY) / 1000.0), 0.0, 1.0);
 	float centerBrightness = (pow(sin(dx)*sin(dy), 2) * 1.6);
-	redBrightness = (RGB.x + centerBrightness) * lightScale;
+	redBrightness = (RGB.x + centerBrightness) * lightScale + (red);
 	greenBrightness = (RGB.y + centerBrightness) * lightScale;
 	blueBrightness = (RGB.z + centerBrightness) * lightScale;
 }

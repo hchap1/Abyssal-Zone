@@ -4,19 +4,22 @@
 #include <string>
 using namespace std;
 
-class MenuButton {
-public:
-	float relx, rely, size;
-	int ID;
-	MenuButton(float relx, float rely, int ID, float size) : relx(relx), rely(rely), ID(ID), size(size) {}
-private:
 
-};
 class Text {
 public:
 	float relx, rely, size;
 	string text;
 	Text(float relx, float rely, string text, float size) : relx(relx), rely(rely), text(text), size(size) {}
+};
+class MenuButton {
+public:
+	float relx, rely, size;
+	int ID;
+	Text text;
+	MenuButton(float relx, float rely, int ID, float size, string t) : relx(relx), rely(rely), ID(ID), size(size), text(Text(relx, rely, t, size * 0.5f)) {
+	}
+private:
+
 };
 
 class MenuWindow {	
@@ -29,7 +32,7 @@ public:
 
 	RenderLayer textRenderer;
 	vector<Text> texts;
-	int textInTexture = 26;
+	int textInTexture = 19;
 
 	MenuWindow(vector<MenuButton> buttons, int buttonsInTexture, vector<Text> texts, Renderer* renderer) : 
 		renderer(renderer), 
@@ -46,6 +49,13 @@ public:
 	}
 
 	int setArray(float mouseX, float mouseY) {
+		vector<Text> textsToDraw;
+		for (Text text : texts) {
+			textsToDraw.push_back(text);
+		}
+		for (MenuButton button : buttons) {
+			textsToDraw.push_back(button.text);
+		}
 		buttonTriangleCount = 0;
 		textTriangleCount = 0;
 		int returnID = -1;
@@ -54,7 +64,6 @@ public:
 		size_t index = 0;
 		for (int i = 0; i < buttons.size(); i++) {
 			MenuButton button = buttons[i];
-			float ty = buttonSize * (button.ID * 2);
 			buttonTriangleCount += 2;
 			float lx = button.relx - button.size * 3.0f;
 			float rx = button.relx + button.size * 3.0f;
@@ -73,42 +82,42 @@ public:
 			buttonArray[index++] = lx;
 			buttonArray[index++] = by;
 			buttonArray[index++] = 0.0f;
-			buttonArray[index++] = ty + buttonSize;
+			buttonArray[index++] = 0.5f;
 			buttonArray[index++] = isHover;
 
 			// Bottom Right
 			buttonArray[index++] = rx;
 			buttonArray[index++] = by;
 			buttonArray[index++] = 1.0f;
-			buttonArray[index++] = ty + buttonSize;
+			buttonArray[index++] = 0.5f;
 			buttonArray[index++] = isHover;
 
 			// Top Left
 			buttonArray[index++] = lx;
 			buttonArray[index++] = uy;
 			buttonArray[index++] = 0.0f;
-			buttonArray[index++] = ty;
+			buttonArray[index++] = 0.0f;
 			buttonArray[index++] = isHover;
 
 			// Top Right
 			buttonArray[index++] = rx;
 			buttonArray[index++] = uy;
 			buttonArray[index++] = 1.0f;
-			buttonArray[index++] = ty;
+			buttonArray[index++] = 0.0f;
 			buttonArray[index++] = isHover;
 
 			// Bottom Right
 			buttonArray[index++] = rx;
 			buttonArray[index++] = by;
 			buttonArray[index++] = 1.0f;
-			buttonArray[index++] = ty + buttonSize;
+			buttonArray[index++] = 0.5f;
 			buttonArray[index++] = isHover;
 
 			// Top Left
 			buttonArray[index++] = lx;
 			buttonArray[index++] = uy;
 			buttonArray[index++] = 0.0f;
-			buttonArray[index++] = ty;
+			buttonArray[index++] = 0.0f;
 			buttonArray[index++] = isHover;
 		}
 		buttonRenderer.setVertices(buttonArray, buttonTriangleCount, 15, GL_DYNAMIC_DRAW);
@@ -117,60 +126,64 @@ public:
 
 		// For text: relx, rely, tx, ty
 		size = 0; // 24 floats per char, per Text
-		for (Text text : texts) {
+		for (Text text : textsToDraw) {
 			for (char c : text.text) {
 				size += 24;
 			}
 		}
 		float* textArray = new float[size];
 		index = 0;
-		for (int i = 0; i < texts.size(); i++) {
-			float xOffset = texts[i].text.size() * texts[i].size * -0.5f;
-			for (int j = 0; j < texts[i].text.size(); j++) {
-				float texOffset = fontCharacters.find(texts[i].text[j]) * textSize;
-				float lx = xOffset + texts[i].relx - texts[i].size * 0.5f;
-				float rx = xOffset + texts[i].relx + texts[i].size * 0.5f;
-				float uy = texts[i].rely + texts[i].size * 1.6f;
-				float by = texts[i].rely - texts[i].size * 1.6f;
-				textTriangleCount += 2;
+		for (int i = 0; i < textsToDraw.size(); i++) {
+			float xOffset = textsToDraw[i].text.size() * textsToDraw[i].size * -0.5f;
+			for (int j = 0; j < textsToDraw[i].text.size(); j++) {
+				if (textsToDraw[i].text[j] != ' ') { 
+					int idx = fontCharacters.find(textsToDraw[i].text[j]);
+					float texOffsetY = floorf(idx * 0.5f) * textSize;
+					float texOffsetX = (idx % 2) * 0.5f;
+					float lx = xOffset + textsToDraw[i].relx - textsToDraw[i].size * 0.5f;
+					float rx = xOffset + textsToDraw[i].relx + textsToDraw[i].size * 0.5f;
+					float uy = textsToDraw[i].rely + textsToDraw[i].size * 1.6f;
+					float by = textsToDraw[i].rely - textsToDraw[i].size * 1.6f;
+					textTriangleCount += 2;
 
-				// Top left
-				textArray[index++] = lx;
-				textArray[index++] = uy;
-				textArray[index++] = 0.0f;
-				textArray[index++] = texOffset;
+					// Top left
+					textArray[index++] = lx;
+					textArray[index++] = uy;
+					textArray[index++] = texOffsetX;
+					textArray[index++] = texOffsetY;
 
-				// Bottom left
-				textArray[index++] = lx;
-				textArray[index++] = by;
-				textArray[index++] = 0.0f;
-				textArray[index++] = texOffset + textSize;
+					// Bottom left
+					textArray[index++] = lx;
+					textArray[index++] = by;
+					textArray[index++] = texOffsetX;
+					textArray[index++] = texOffsetY + textSize;
 
-				// Bottom right
-				textArray[index++] = rx;
-				textArray[index++] = by;
-				textArray[index++] = 1.0f;
-				textArray[index++] = texOffset + textSize;
+					// Bottom right
+					textArray[index++] = rx;
+					textArray[index++] = by;
+					textArray[index++] = texOffsetX + 0.5f;
+					textArray[index++] = texOffsetY + textSize;
 
-				// Bottom right
-				textArray[index++] = rx;
-				textArray[index++] = by;
-				textArray[index++] = 1.0f;
-				textArray[index++] = texOffset + textSize;
+					// Bottom right
+					textArray[index++] = rx;
+					textArray[index++] = by;
+					textArray[index++] = texOffsetX + 0.5f;
+					textArray[index++] = texOffsetY + textSize;
 
-				// Top left
-				textArray[index++] = lx;
-				textArray[index++] = uy;
-				textArray[index++] = 0.0f;
-				textArray[index++] = texOffset;
+					// Top left
+					textArray[index++] = lx;
+					textArray[index++] = uy;
+					textArray[index++] = texOffsetX;
+					textArray[index++] = texOffsetY;
 
-				// Top right
-				textArray[index++] = rx;
-				textArray[index++] = uy;
-				textArray[index++] = 1.0f;
-				textArray[index++] = texOffset;
+					// Top right
+					textArray[index++] = rx;
+					textArray[index++] = uy;
+					textArray[index++] = texOffsetX + 0.5f;
+					textArray[index++] = texOffsetY;
+				}
 
-				xOffset += texts[i].size;
+				xOffset += textsToDraw[i].size;
 			}
 		}
 
@@ -193,5 +206,5 @@ private:
 	int buttonTriangleCount;
 	float buttonSize;
 	float textSize;
-	string fontCharacters = "ABCDEFGH0123456789.:";
+	string fontCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:";
 };

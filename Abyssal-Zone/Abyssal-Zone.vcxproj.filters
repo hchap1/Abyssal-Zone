@@ -1346,4 +1346,15 @@
   <ItemGroup>
     <Library Include="lib\glfw3.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\sounds\ambience.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sounds\footstep_stone.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sounds\footstep_wood.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
 </Project>
