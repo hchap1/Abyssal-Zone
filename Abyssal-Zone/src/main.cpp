@@ -31,7 +31,7 @@ bool ladder(int blockID) {
 }
 
 char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
-	if (glfwKeyCode >= GLFW_KEY_A && glfwKeyCode <= GLFW_KEY_H) {
+	if (glfwKeyCode >= GLFW_KEY_A && glfwKeyCode <= GLFW_KEY_Z) {
 		return static_cast<char>('A' + (glfwKeyCode - GLFW_KEY_A));
 	}
 	else if (glfwKeyCode >= GLFW_KEY_0 && glfwKeyCode <= GLFW_KEY_9) {
@@ -74,14 +74,15 @@ string getChoice(Renderer* renderer, string question, vector<string> options) {
 	}
 }
 
-tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Text> texts, string pageID) {
-
-	bool running = true;
-	MenuWindow window(buttons, 8, texts, renderer);
+string getInput(Renderer* renderer, string question, string prompt) {
+	vector<Text> texts;
+	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
+	texts.push_back(Text(0.0f, 0.0f, prompt, 0.1f));
+	MenuWindow window({MenuButton(0.0f, -0.6f,)}, 8, texts, renderer);
 	vector<int> keyTracker;
 	int backspaceTracker = 0;
 	vector<int> glfwKeyCodes;
-	for (int i = GLFW_KEY_A; i <= GLFW_KEY_H; ++i) {
+	for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; ++i) {
 		glfwKeyCodes.push_back(i);
 		keyTracker.push_back(0);
 	}
@@ -93,48 +94,41 @@ tuple<int, string> GUI(Renderer* renderer, vector<MenuButton> buttons, vector<Te
 	glfwKeyCodes.push_back(GLFW_KEY_SEMICOLON);
 	keyTracker.push_back(0);
 	keyTracker.push_back(0);
-
-	glfwSwapInterval(1);
+	glfwKeyCodes.push_back(GLFW_KEY_ENTER);
+	keyTracker.push_back(2);
+	bool running = true;
 	while (running) {
 		bool mouseDown = renderer->mouseWasJustClicked();
-		if (pageID == "multiplayer" || pageID == "join") {
-			for (int i = 0; i < keyTracker.size(); i++) {
-				if (renderer->getKeyDown(glfwKeyCodes[i])) {
-					keyTracker[i]++;
-				}
-				else {
-					keyTracker[i] = 0;
-				}
-				if (keyTracker[i] == 1) {
-					window.texts[0].text += getCharacterFromGLFWKeyCode(glfwKeyCodes[i]);
-				}
-			}
-			if (renderer->getKeyDown(GLFW_KEY_BACKSPACE)) {
-				backspaceTracker++;
-			}
-			else {
-				backspaceTracker = 0;
-			}
-			if (backspaceTracker == 1) {
-				window.texts[0].text = window.texts[0].text.substr(0, window.texts[0].text.size() - 1);
-			}
+		renderer->fillScreen(0, 20, 60);
+		int buttonPressed = window.draw(renderer->mouseX, renderer->mouseY);
+		if (buttonPressed != -1 && mouseDown) {
 
 		}
-		renderer->fillScreen(255, 255, 255);
-		int buttonPressed = window.draw(renderer->mouseX, renderer->mouseY);
-		if (buttonPressed != -1) {
-			if (mouseDown) {
-				if (pageID == "multiplayer" || pageID == "join") {
-					return make_tuple(buttonPressed, window.texts[0].text);
-				}
-				else {
-					return make_tuple(buttonPressed, "");
-				}
+		if (keyTracker.back() == 1) {
+			return window.texts[1].text;
+		}
+		for (int i = 0; i < keyTracker.size(); i++) {
+			if (renderer->getKeyDown(glfwKeyCodes[i])) {
+				keyTracker[i]++;
 			}
+			else {
+				keyTracker[i] = 0;
+			}
+			if (keyTracker[i] == 1) {
+				window.texts[1].text += getCharacterFromGLFWKeyCode(glfwKeyCodes[i]);
+			}
+		}
+		if (renderer->getKeyDown(GLFW_KEY_BACKSPACE)) {
+			backspaceTracker++;
+		}
+		else {
+			backspaceTracker = 0;
+		}
+		if (backspaceTracker == 1) {
+			window.texts[1].text = window.texts[1].text.substr(0, window.texts[1].text.size() - 1);
 		}
 		renderer->updateDisplay();
 	}
-	return make_tuple(-1, "");
 }
 
 int game(string joinCode, Renderer* renderer, string ID) {
@@ -743,12 +737,19 @@ int main() {
 
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	//game("BE412450000", &renderer, "testplayer");
 	string choice = getChoice(&renderer, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
 	if (choice == "JOIN GAME") {
-		choice = getChoice(&renderer, "LAN OR ZEROTIER", { "LAN", "ZERO TIER", "BACK" });
+		choice = getChoice(&renderer, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
+		string joincode = "NONE";
 		if (choice == "LAN") {
-			
+			joincode = getInput(&renderer, "JOINCODE", "BC0750000");
+			string username = getInput(&renderer, "ENTER USERNAME", "");
+			game(joincode, &renderer, username);
+		}
+		else if (choice == "ZEROTIER") {
+			joincode = getInput(&renderer, "IP:PORT", "10.147.17.85");
+			string username = getInput(&renderer, "ENTER USERNAME", "");
+			game(joincode, &renderer, username);
 		}
 	}
 	return 0;
