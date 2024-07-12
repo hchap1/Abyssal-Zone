@@ -457,6 +457,8 @@
     <None Include="assets\shaders\text_vertex_shader.glsl" />
     <None Include="assets\shaders\tile_fragment_shader.glsl" />
     <None Include="assets\shaders\tile_vertex_shader.glsl" />
+    <None Include="assets\shaders\vcr_fragment_shader.glsl" />
+    <None Include="assets\shaders\vcr_vertex_shader.glsl" />
     <None Include="include\GLM\detail\func_common.inl" />
     <None Include="include\GLM\detail\func_common_simd.inl" />
     <None Include="include\GLM\detail\func_exponential.inl" />

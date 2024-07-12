@@ -8,6 +8,9 @@ out vec2 TexCoord;
 out float redBrightness;
 out float greenBrightness;
 out float blueBrightness;
+out float r;
+out float yPos;
+out float vignette;
 
 uniform float lightScale;
 uniform vec4 lightSources[64];
@@ -23,6 +26,7 @@ uniform float lightConstant;
 uniform float frame;
 uniform float texOffset;
 uniform float torchLight;
+uniform float ripple;
 
 void main(){
 	vec4 shiftedPosition = vec4((aPos.x + xOffset) * zoom, (aPos.y + yOffset) * zoom, 1.0, 1.0);
@@ -43,8 +47,9 @@ void main(){
 			RGB = vec3(RGB.x + b * 1.3 * torchLight, RGB.y + b * 0.6 * torchLight, RGB.z + b * 0.2 * torchLight);
 		}
 	} 
+	r = ripple;
+	yPos = shiftedPosition.y;
 
-	gl_Position = shiftedPosition;
 	vec2 text = aTexCoord;
 	if (BlockID == 7.0) {
 		text.y += frame * texOffset;
@@ -56,5 +61,6 @@ void main(){
 	redBrightness = (RGB.x + centerBrightness) * lightScale;
 	greenBrightness = (RGB.y + centerBrightness) * lightScale;
 	blueBrightness = (RGB.z + centerBrightness) * lightScale;
-
+	gl_Position = shiftedPosition;
+	vignette = (pow(shiftedPosition.x, 2) + pow(shiftedPosition.y, 2)) * 0.5;
 }

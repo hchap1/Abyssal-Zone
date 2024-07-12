@@ -11,6 +11,12 @@
 #include <cmath>
 using namespace std;
 
+std::string removeNullChars(const std::string& input) {
+    std::string result = input;
+    result.erase(std::remove(result.begin(), result.end(), '\0'), result.end());
+    return result;
+}
+
 vector<string> split_with_delimiter(const string& input, const string& delimiter) {
     vector<string> result;
     size_t start = 0;
@@ -92,11 +98,9 @@ public:
 
 class EnemyData {
 public:
-    float x, y;
-    EnemyData() : x(0.0f), y(0.0f) {}
-    EnemyData(float x, float y) : x(x), y(y) {
-
-    }
+    float x, y, rotation;
+    EnemyData() : x(0.0f), y(0.0f), rotation(0.0f) {}
+    EnemyData(float x, float y, float rotation) : x(x), y(y), rotation(rotation) {}
 };
 
 class Client {
@@ -187,7 +191,7 @@ public:
                                 multiplayerData[data] = PlayerData();
                             }
                             string reply = "<pexi>" + ID + "!" + "<pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";;
-                            send(clientSocket, reply.data(), strlen(reply.data()), 0);
+                            send(clientSocket, reply.c_str(), strlen(reply.c_str()), 0);
                         }
                         // Player replying to connection packet
                         if (identifier == "pexi" && data != ID) {
@@ -231,8 +235,9 @@ public:
                         // Health packet
                         if (identifier == "ph") {
                             vector<string> components = splitString(data, ',');
-                            if (components[0] == ID) {
+                            if (components[0] == ID.c_str()) {
                                 *health += stoi(components[1]);
+                                cout << "Took damage!" << endl;
                                 *rFT = 0.5f;
                             }
                         }
@@ -259,6 +264,7 @@ public:
                             if (enemyData.find(components[0]) != enemyData.end()) {
                                 enemyData[components[0]].x = stof(components[1]);
                                 enemyData[components[0]].y = stof(components[2]);
+                                enemyData[components[0]].rotation = stof(components[3]);
                             }
                         }
                     }
@@ -274,42 +280,70 @@ public:
     int getPlayerCount() { return playerCount; }
 
     void sendData() {
-        string m = "<pcon>" + ID + "!" + "<pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";
-        int initalSend = send(clientSocket, m.data(), strlen(m.data()), 0);
-        this_thread::sleep_for(chrono::milliseconds(10));
+        string m = "<pcon>";
+        m += ID.c_str();
+        m += "!<pp>";
+        m += ID.c_str();
+        m += ", ";
+        m += to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))).c_str();
+        m += ", ";
+        m += to_string(r4dp((*playerY + hph) / (-blockHeight))).c_str();
+        m += "!";
+        cout << "Initial packet: " << m << endl;
+        int initalSend = send(clientSocket, m.c_str(), strlen(m.c_str()), 0);
+        this_thread::sleep_for(chrono::milliseconds(3000));
         while (running) {
             this_thread::sleep_for(chrono::milliseconds(10));
             // Positional update
             if (*playerX != lastState.x || *playerY != lastState.y) {
-                string message = "<pp>" + ID + "," + to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))) + "," + to_string(r4dp((*playerY + hph) / (-blockHeight))) + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pp>";
+                message += ID.c_str();
+                message += ",";
+                message += to_string(r4dp((*playerX + hpw * 1.5f) / (-blockWidth))).c_str();
+                message += ",";
+                message += to_string(r4dp((*playerY + hph) / (-blockHeight))).c_str();
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
             if (*frame != lastState.frame) {
-                string message = "<pf>" + ID + "," + to_string(*frame) + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pf>";
+                message += ID.c_str();
+                message += ",";
+                message += to_string(*frame).c_str();
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
             if (*direction != lastState.direction) {
-                string message = "<pd>" + ID + "," + to_string(*direction) + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pd>";
+                message += ID.c_str();
+                message += ",";
+                message += to_string(*direction).c_str();
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
             if (*crouching != lastState.crouching) {
-                string crString = "0";
-                if (*crouching) { crString = "1"; }
-                string message = "<pc>" + ID + "," + crString + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pc>";
+                message += ID.c_str();
+                message += ",";
+                message += *crouching ? "1" : "0";
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
             if (*health <= 0) {
-                string message = "<pdis>" + ID + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pdis>";
+                message += ID.c_str();
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
             if (*rFT > 0.0f != lastState.isRed) {
-                string bStr = "0";
-                if (*rFT > 0.0f) {
-                    bStr = "1";
-                }
-                string message = "<pdis>" + ID + "," + bStr + "!";
-                int bytesSent = send(clientSocket, message.data(), strlen(message.data()), 0);
+                string message = "<pdis>";
+                message += ID.c_str();
+                message += ",";
+                message += (*rFT > 0.0f) ? "1" : "0";
+                message += "!";
+                int bytesSent = send(clientSocket, removeNullChars(message).c_str(), strlen(message.c_str()), 0);
             }
+
             lastState.x = *playerX;
             lastState.y = *playerY;
             lastState.crouching = *crouching;

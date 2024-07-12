@@ -7,6 +7,9 @@ out vec2 TexCoord;
 out float redBrightness;
 out float greenBrightness;
 out float blueBrightness;
+out float r;
+out float yPos;
+
 uniform float direction;
 uniform float lightScale;
 uniform vec4 lightSources[64];
@@ -22,6 +25,7 @@ uniform float frame;
 uniform float texOffset;
 uniform float torchLight;
 uniform bool isHurt;
+uniform float ripple;
 
 uniform float zoom;
 uniform bool isCrouching;
@@ -75,4 +79,6 @@ void main(){
 		greenBrightness = (RGB.y + centerBrightness) * lightScale;
 		blueBrightness = (RGB.z + centerBrightness) * lightScale;
 	}
+	r = ripple;
+	yPos = shiftedPosition.y;
 }

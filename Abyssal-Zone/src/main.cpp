@@ -9,6 +9,8 @@
 #include "CUSTOM/GLGUI.h"
 #include <windows.h>
 #include <map>
+#include <math.h>
+#define _USE_MATH_DEFINES
 using namespace std;
 
 int windowWidth = 1920;
@@ -18,6 +20,7 @@ float startY = 2.0f;
 float playerWidth = 0.8f;
 float playerHeight = 1.8f;
 float blockSize = 300.0f;
+bool vsync = true;
 
 bool collide(int blockID) {
 	if (blockID == 1 || blockID == 4) {
@@ -61,7 +64,7 @@ string getChoice(Renderer* renderer, string question, vector<string> options) {
 	vector<Text> texts;
 	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
 	MenuWindow window(buttons, 8, texts, renderer);
-	glfwSwapInterval(1);
+	if (vsync) { if (vsync) { glfwSwapInterval(1); } }
 	bool running = true;
 	while (running) {
 		bool mouseDown = renderer->mouseWasJustClicked();
@@ -78,7 +81,7 @@ string getInput(Renderer* renderer, string question, string prompt) {
 	vector<Text> texts;
 	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
 	texts.push_back(Text(0.0f, 0.0f, prompt, 0.1f));
-	MenuWindow window({MenuButton(0.0f, -0.6f,)}, 8, texts, renderer);
+	MenuWindow window({}, 8, texts, renderer);
 	vector<int> keyTracker;
 	int backspaceTracker = 0;
 	vector<int> glfwKeyCodes;
@@ -135,6 +138,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	float timeUntilFlicker = 3.0f;
 	float flickerDuration = 0.5f;
 	float flickerTimer = 0.0f;
+	float ripple_position = 1.0f;
 
 	float relativeFPS;
 	float dt;
@@ -188,7 +192,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 	RenderLayer multiplayerRenderer({ 2, 2, 1, 1, 1, 1 }, "multiplayer", "player_texture", true);
-	RenderLayer enemyRenderer({ 2, 2 }, "enemy", "enemies", true);
+	RenderLayer enemyRenderer({ 2, 2, 1 }, "enemy", "enemies", true);
+	RenderLayer vcrRenderer({ 2, 2 }, "vcr", "vcr", false);
 
 	bool doMultiplayer = false;
 	thread recvThread;
@@ -197,6 +202,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromFile(1);
 	vector<vector<int>> tilemap = get<0>(tilemapData);
+
+	renderer->fillScreen(0, 20, 60);
+	renderer->updateDisplay();
 
 	if (joinCode != "NONE") {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
@@ -244,6 +252,15 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		 halfPlayerWidth, -halfPlayerHeight, playerTexOffset, 0.5f,
 	};
 
+	float vcrVertexData[] = {
+	    -1.0f,  1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, 1.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f
+	};
+
 	playerRenderer.setVertices(playerVertexData, 2, 12, GL_STATIC_DRAW);
 	tilemapRenderer.setFloat("screenX", static_cast<float>(windowWidth));
 	tilemapRenderer.setFloat("screenY", static_cast<float>(windowHeight));
@@ -253,15 +270,23 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	multiplayerRenderer.setFloat("screenY", static_cast<float>(windowHeight));
 	enemyRenderer.setFloat("screenX", static_cast<float>(windowWidth));
 	enemyRenderer.setFloat("screenY", static_cast<float>(windowHeight));
+	vcrRenderer.setVertices(vcrVertexData, 2, 12, GL_STATIC_DRAW);
 
-	glfwSwapInterval(1);
+	if (vsync) { glfwSwapInterval(1); }
 	dt = renderer->getDeltaTime();
 	while (renderer->isRunning()) {
 		if (health <= 0) {
 			break;
 		}
 		dt = renderer->getDeltaTime();
+
 		footstepTimer -= dt;
+		ripple_position -= dt * 0.2f;
+		if (ripple_position < -1.0f) {
+			ripple_position = 1.0f;
+		}
+		tilemapRenderer.setFloat("ripple", ripple_position);
+		playerRenderer.setFloat("ripple", ripple_position);
 		if (rFT > 0.0f) { rFT -= dt; }
 		frameTimer -= dt;
 		cycleCount += dt;
@@ -310,10 +335,10 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			flickerTimer = flickerDuration;
 		}
 		if (renderer->getKeyDown(GLFW_KEY_I)) {
-			//zoom -= dt;
+			zoom -= dt;
 		}
 		else if (renderer->getKeyDown(GLFW_KEY_O)) {
-			//zoom += dt;
+			zoom += dt;
 		}
 		if (renderer->getKeyDown(GLFW_KEY_K)) {
 			lightScale -= dt;
@@ -329,6 +354,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			vector<string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
 			startX = stof(coords[0]);
 			startY = stof(coords[1]);
+			cout << "RECEIVED MAP! Going to start position [" << startX << ", " << startY << "]." << endl;
 			playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 			playerY = -blockHeight * startY - halfPlayerHeight;
 			tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromString(RCV_str);
@@ -386,7 +412,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 			size_t validCount = 0;
 			for (const auto& pair : playerData) {
-				if (pair.first != ID) {
+				if (pair.first != ID.c_str()) {
 					validCount++;
 				}
 			}
@@ -404,7 +430,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				float red = 0.0f;
 				if (player.isRed) { red = 1.0f; }
 				if (player.crouching) { crouching = 1.0f; }
-				if (pair.first != ID) {
+				if (pair.first != ID.c_str()) {
 					triangleCount += 2;
 					multiplayerVertexArray[index++] = xPos - halfPlayerWidth;
 					multiplayerVertexArray[index++] = yPos + halfPlayerHeight;
@@ -470,13 +496,14 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				validCount += 1;
 			}
 			triangleCount = 0;
-			float* enemyVertexArray = new float[validCount * 24];
+			float* enemyVertexArray = new float[validCount * 30];
 			index = 0;
 			halfPlayerHeight *= 0.5f;
 			for (const auto& pair : enemyData) {
 				EnemyData enemy = pair.second;
 				float xPos = enemy.x * blockWidth + halfPlayerWidth * 1.5f;
 				float yPos = enemy.y * blockHeight + halfPlayerHeight;
+				float rotation = enemy.rotation * (4/3.1415);
 				triangleCount += 2;
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
@@ -509,7 +536,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				enemyVertexArray[index++] = 0.0f;
 			}
 			halfPlayerHeight *= 2.0f;
-			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
+			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 15, GL_DYNAMIC_DRAW);
 			enemyRenderer.draw(triangleCount);
 			delete[] enemyVertexArray;
 		
@@ -680,6 +707,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 				footstepTimer = 0.2f;
 			}
 			// Draw screen.
+			vcrRenderer.draw(2);
 			renderer->updateDisplay();
 		}
 	}
@@ -742,12 +770,12 @@ int main() {
 		choice = getChoice(&renderer, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
 		string joincode = "NONE";
 		if (choice == "LAN") {
-			joincode = getInput(&renderer, "JOINCODE", "BC0750000");
+			joincode = getInput(&renderer, "JOINCODE", "CF4817250000");
 			string username = getInput(&renderer, "ENTER USERNAME", "");
 			game(joincode, &renderer, username);
 		}
 		else if (choice == "ZEROTIER") {
-			joincode = getInput(&renderer, "IP:PORT", "10.147.17.85");
+			joincode = getInput(&renderer, "IP:PORT", "100.127.255.249:50000");
 			string username = getInput(&renderer, "ENTER USERNAME", "");
 			game(joincode, &renderer, username);
 		}
