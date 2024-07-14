@@ -2,21 +2,21 @@
 #include <vector>
 #include "CUSTOM/renderer.h"
 #include <string>
-using namespace std;
+
 
 
 class Text {
 public:
 	float relx, rely, size;
-	string text;
-	Text(float relx, float rely, string text, float size) : relx(relx), rely(rely), text(text), size(size) {}
+	std::string text;
+	Text(float relx, float rely, std::string text, float size) : relx(relx), rely(rely), text(text), size(size) {}
 };
 class MenuButton {
 public:
 	float relx, rely, size;
 	int ID;
 	Text text;
-	MenuButton(float relx, float rely, int ID, float size, string t) : relx(relx), rely(rely), ID(ID), size(size), text(Text(relx, rely, t, size * 0.5f)) {
+	MenuButton(float relx, float rely, int ID, float size, std::string t) : relx(relx), rely(rely), ID(ID), size(size), text(Text(relx, rely, t, size * 0.5f)) {
 	}
 private:
 
@@ -27,14 +27,14 @@ public:
 	Renderer* renderer;
 
 	RenderLayer buttonRenderer;
-	vector<MenuButton> buttons;
+	std::vector<MenuButton> buttons;
 	int buttonsInTexture;
 
 	RenderLayer textRenderer;
-	vector<Text> texts;
+	std::vector<Text> texts;
 	int textInTexture = 19;
 
-	MenuWindow(vector<MenuButton> buttons, int buttonsInTexture, vector<Text> texts, Renderer* renderer) : 
+	MenuWindow(std::vector<MenuButton> buttons, int buttonsInTexture, std::vector<Text> texts, Renderer* renderer) :
 		renderer(renderer), 
 		buttonRenderer({ 2, 2, 1 }, "button", "buttons", false), buttons(buttons), buttonsInTexture(buttonsInTexture),
 		textRenderer({ 2, 2 }, "text", "font", false), texts(texts) {
@@ -49,7 +49,7 @@ public:
 	}
 
 	int setArray(float mouseX, float mouseY) {
-		vector<Text> textsToDraw;
+		std::vector<Text> textsToDraw;
 		for (Text text : texts) {
 			textsToDraw.push_back(text);
 		}
@@ -206,5 +206,5 @@ private:
 	int buttonTriangleCount;
 	float buttonSize;
 	float textSize;
-	string fontCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:";
+	std::string fontCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:";
 };

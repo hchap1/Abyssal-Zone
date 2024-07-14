@@ -3,12 +3,12 @@
 #include <vector>
 #include "CUSTOM/renderer.h"
 #include <algorithm>
-using namespace std;
 
-vector<string> splitString(const string& str, char delimiter) {
-    vector<string> tokens;
-    stringstream ss(str);
-    string token;
+
+std::vector<std::string> splitString(const std::string& str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
 
     while (getline(ss, token, delimiter)) {
         tokens.push_back(token);
@@ -18,43 +18,43 @@ vector<string> splitString(const string& str, char delimiter) {
 
 class Packet {
 public:
-    vector<float> playerXPositions;
-    vector<float> playerYPositions;
-    vector<bool> playerCrouchingBools;
-    vector<float> playerFrames;
-    vector<float> playerDirections;
-    vector<string> playerIDs;
-    vector<float> enemyXPositions;
-    vector<float> enemyYPositions;
-    vector<string> enemyNames;
+    std::vector<float> playerXPositions;
+    std::vector<float> playerYPositions;
+    std::vector<bool> playerCrouchingBools;
+    std::vector<float> playerFrames;
+    std::vector<float> playerDirections;
+    std::vector<std::string> playerIDs;
+    std::vector<float> enemyXPositions;
+    std::vector<float> enemyYPositions;
+    std::vector<std::string> enemyNames;
 
-    string encoded;
+    std::string encoded;
     int playerCount = 0;
     int enemyCount = 0;
-	Packet(string encodedString) {
+	Packet(std::string encodedString) {
         encoded = encodedString;
-        vector<string> packetData = splitString(encodedString, '|');
-        size_t delimCount = count(encodedString.begin(), encodedString.end(), '|');
+        std::vector<std::string> packetData = splitString(encodedString, '|');
+        size_t delimCount = std::count(encodedString.begin(), encodedString.end(), '|');
         if (packetData.size() > 1) {
-            string enemyData = packetData[0];
-            string playerData = packetData[1];
-            vector<string> data;
+            std::string enemyData = packetData[0];
+            std::string playerData = packetData[1];
+            std::vector<std::string> data;
 
-            vector<string> enemies = splitString(enemyData, '/');
+            std::vector<std::string> enemies = splitString(enemyData, '/');
             enemyCount = 0;
-            for (string enemy : enemies) {
+            for (std::string enemy : enemies) {
                 enemyCount += 1;
                 data = splitString(enemy, ',');
                 if (data.size() >= 3) {
-                    enemyXPositions.push_back(stof(data[0]));
-                    enemyYPositions.push_back(stof(data[1]));
+                    enemyXPositions.push_back(std::stof(data[0]));
+                    enemyYPositions.push_back(std::stof(data[1]));
                     enemyNames.push_back(data[2]);
                 }
             }
 
-            vector<string> players = splitString(playerData, '/');
+            std::vector<std::string> players = splitString(playerData, '/');
             playerCount = 0;
-            for (string player : players) {
+            for (std::string player : players) {
                 playerCount += 1;
                 data = splitString(player, ',');
                 if (data.size() >= 6) {

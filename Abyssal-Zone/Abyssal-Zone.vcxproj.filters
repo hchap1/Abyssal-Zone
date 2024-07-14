@@ -902,6 +902,18 @@
     <ClInclude Include="include\CUSTOM\GLGUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\CUSTOM\audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OPENAL\al.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OPENAL\alc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OPENAL\dr_wav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\GLM\detail\func_common.inl">
@@ -1347,6 +1359,7 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw3.lib" />
+    <Library Include="lib\OpenAL32.lib" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\sounds\ambience.wav">

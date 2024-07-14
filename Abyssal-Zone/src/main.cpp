@@ -10,8 +10,8 @@
 #include <windows.h>
 #include <map>
 #include <math.h>
+#include "CUSTOM/audio.h"
 #define _USE_MATH_DEFINES
-using namespace std;
 
 int windowWidth = 1920;
 int windowHeight = 1080;
@@ -49,19 +49,23 @@ char getCharacterFromGLFWKeyCode(int glfwKeyCode) {
 	return '\0';
 }
 
-string getChoice(Renderer* renderer, string question, vector<string> options) {
-	map<int, string> IDmap;
-	vector<MenuButton> buttons;
+std::string getChoice(Renderer* renderer, AudioDevice* audioDevice, std::string question, std::vector<std::string> options) {
+	std::cout << "Beginning..." << std::endl;
+	Sound footstep = Sound("assets/sounds/ambience.wav");
+	std::cout << "Sound created." << std::endl;
+	audioDevice->playSound(&footstep);
+	std::map<int, std::string> IDmap;
+	std::vector<MenuButton> buttons;
 	float currentY = 0.45f;
 	int i = 0;
-	for (string option : options) {
+	for (std::string option : options) {
 		MenuButton button(0.0f, currentY, i, 0.1f, option);
 		buttons.push_back(button);
 		IDmap[i] = option;
 		i++;
 		currentY -= 0.3f;
 	}
-	vector<Text> texts;
+	std::vector<Text> texts;
 	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
 	MenuWindow window(buttons, 8, texts, renderer);
 	if (vsync) { if (vsync) { glfwSwapInterval(1); } }
@@ -77,14 +81,14 @@ string getChoice(Renderer* renderer, string question, vector<string> options) {
 	}
 }
 
-string getInput(Renderer* renderer, string question, string prompt) {
-	vector<Text> texts;
+std::string getInput(Renderer* renderer, std::string question, std::string prompt) {
+	std::vector<Text> texts;
 	texts.push_back(Text(0.0f, 0.8f, question, 0.1f));
 	texts.push_back(Text(0.0f, 0.0f, prompt, 0.1f));
 	MenuWindow window({}, 8, texts, renderer);
-	vector<int> keyTracker;
+	std::vector<int> keyTracker;
 	int backspaceTracker = 0;
-	vector<int> glfwKeyCodes;
+	std::vector<int> glfwKeyCodes;
 	for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; ++i) {
 		glfwKeyCodes.push_back(i);
 		keyTracker.push_back(0);
@@ -134,7 +138,7 @@ string getInput(Renderer* renderer, string question, string prompt) {
 	}
 }
 
-int game(string joinCode, Renderer* renderer, string ID) {
+int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std::string ID) {
 	float timeUntilFlicker = 3.0f;
 	float flickerDuration = 0.5f;
 	float flickerTimer = 0.0f;
@@ -178,16 +182,16 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	bool RCV = false;
 	bool doPhysics = false;
-	string RCV_str = "";
+	std::string RCV_str = "";
 
 	float footstepTimer = 0.2f;
 	
 	dt = renderer->getDeltaTime();
 
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_int_distribution<int> distribution(1, 10);
-	uniform_int_distribution<int> distribution2(80, 100);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> distribution(1, 10);
+	std::uniform_int_distribution<int> distribution2(80, 100);
 
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
@@ -196,12 +200,12 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	RenderLayer vcrRenderer({ 2, 2 }, "vcr", "vcr", false);
 
 	bool doMultiplayer = false;
-	thread recvThread;
-	thread sendThread;
+	std::thread recvThread;
+	std::thread sendThread;
 	Client client;
 
-	tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromFile(1);
-	vector<vector<int>> tilemap = get<0>(tilemapData);
+	std::tuple<std::vector<std::vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromFile(1);
+	std::vector<std::vector<int>> tilemap = get<0>(tilemapData);
 
 	renderer->fillScreen(0, 20, 60);
 	renderer->updateDisplay();
@@ -210,27 +214,27 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		client = Client(joinCode, halfPlayerWidth, halfPlayerHeight, &playerX, &playerY, &crouching, &frame, 
 			&dir, ID, &RCV, &RCV_str, blockWidth, blockHeight, &health, &rFT);
 		doMultiplayer = true;
-		recvThread = thread(&Client::recvData, &client);
-		sendThread = thread(&Client::sendData, &client);
+		recvThread = std::thread(&Client::recvData, &client);
+		sendThread = std::thread(&Client::sendData, &client);
 	}
 
-	tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
+	std::tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 	//tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
 	//delete[] get<0>(tilemapVertexData);
-	tilemapRenderer.setFloat("blockX", get<2>(tilemapVertexData));
-	tilemapRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	tilemapRenderer.setFloat("blockX", std::get<2>(tilemapVertexData));
+	tilemapRenderer.setFloat("blockY", std::get<3>(tilemapVertexData));
 	tilemapRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	tilemapRenderer.setFloat("torchLight", 1.0f);
-	playerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
-	playerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	playerRenderer.setFloat("blockX", std::get<2>(tilemapVertexData));
+	playerRenderer.setFloat("blockY", std::get<3>(tilemapVertexData));
 	playerRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	playerRenderer.setFloat("torchLight", 1.0f);
-	multiplayerRenderer.setFloat("blockX", get<2>(tilemapVertexData));
-	multiplayerRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	multiplayerRenderer.setFloat("blockX", std::get<2>(tilemapVertexData));
+	multiplayerRenderer.setFloat("blockY", std::get<3>(tilemapVertexData));
 	multiplayerRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	multiplayerRenderer.setFloat("torchLight", 1.0f);
-	enemyRenderer.setFloat("blockX", get<2>(tilemapVertexData));
-	enemyRenderer.setFloat("blockY", get<3>(tilemapVertexData));
+	enemyRenderer.setFloat("blockX", std::get<2>(tilemapVertexData));
+	enemyRenderer.setFloat("blockY", std::get<3>(tilemapVertexData));
 	enemyRenderer.setFloat("texOffset", 1.0f / 14.0f);
 	enemyRenderer.setFloat("torchLight", 1.0f);
 
@@ -274,6 +278,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 
 	if (vsync) { glfwSwapInterval(1); }
 	dt = renderer->getDeltaTime();
+
+	Sound footstep = Sound("assets/sounds/footstep_stone.wav");
+
 	while (renderer->isRunning()) {
 		if (health <= 0) {
 			break;
@@ -351,13 +358,13 @@ int game(string joinCode, Renderer* renderer, string ID) {
 		if (RCV) {
 			RCV = false;
 			doPhysics = true;
-			vector<string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
+			std::vector<std::string> coords = splitString(splitString(splitString(RCV_str, '|')[0], '>')[1], ',');
 			startX = stof(coords[0]);
 			startY = stof(coords[1]);
-			cout << "RECEIVED MAP! Going to start position [" << startX << ", " << startY << "]." << endl;
+			std::cout << "RECEIVED MAP! Going to start position [" << startX << ", " << startY << "]." << std::endl;
 			playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 			playerY = -blockHeight * startY - halfPlayerHeight;
-			tuple<vector<vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromString(RCV_str);
+			std::tuple<std::vector<std::vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromString(RCV_str);
 			tilemap = get<0>(tilemapData);
 			float(*lightArray)[4] = get<1>(tilemapData);
 			int numLights = get<2>(tilemapData);
@@ -372,7 +379,7 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			multiplayerRenderer.setFloat("lightCount", static_cast<float>(numLights));
 			enemyRenderer.setFloat("lightCount", static_cast<float>(numLights));
 
-			tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
+			std::tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
 			t = get<1>(tilemapVertexData);
 			tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
 			delete[] get<0>(tilemapVertexData);
@@ -407,8 +414,8 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			enemyRenderer.setFloat("xOffset", playerX);
 			enemyRenderer.setFloat("yOffset", playerY);
 			
-			map<string, PlayerData> playerData = client.multiplayerData;
-			map<string, EnemyData> enemyData = client.enemyData;
+			std::map<std::string, PlayerData> playerData = client.multiplayerData;
+			std::map<std::string, EnemyData> enemyData = client.enemyData;
 
 			size_t validCount = 0;
 			for (const auto& pair : playerData) {
@@ -705,7 +712,9 @@ int game(string joinCode, Renderer* renderer, string ID) {
 			}
 			if (grounded && playerXVel != 0.0f && footstepTimer <= 0.0f) {
 				footstepTimer = 0.2f;
+				audioDevice->playSound(&footstep);
 			}
+
 			// Draw screen.
 			vcrRenderer.draw(2);
 			renderer->updateDisplay();
@@ -718,66 +727,23 @@ int game(string joinCode, Renderer* renderer, string ID) {
 	}
 	return 0;
 }
-/*
-int main() {
-	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	//game("CE519869", &renderer, "bob");
-	vector<MenuButton> pageButtons;
-	pageButtons.push_back(move(MenuButton(0.0f, 0.2f, 0.0f, 0.1f)));
-	pageButtons.push_back(move(MenuButton(0.0f, -0.2f, 1.0f, 0.1f)));
-	string joinCode;
-	vector<Text> pageText;
-	string pageID = "home";
-	while (true) {
-		
-		tuple<int, string> data = GUI(&renderer, pageButtons, pageText, pageID);
-		int action = get<0>(data);
-		string extraData = get<1>(data);
-		if (action == 0) {
-			game("NONE", &renderer, "NONE");
-		}
-		if (action == 1) {
-			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f),
-											 MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "10.147.17.85:50000", 0.1f) } ;
-			pageID = "multiplayer";
-		}
-		if (action == 2) {
-			pageButtons = vector<MenuButton>{ MenuButton(0.0f, 0.2f, 0.0f, 0.1f), MenuButton(0.0f, -0.2f, 1.0f, 0.1f) };
-			pageText = vector<Text>{};
-			pageID = "home";
-		}
-		if (action == 3 && pageID == "join") {
-			cout << "JOINING! USERNAME: [" << extraData << "]" << endl;
-			game(joinCode, &renderer, extraData);
-		}
-		if (action == 3 && pageID == "multiplayer") {
-			joinCode = extraData;
-			pageButtons = vector<MenuButton>{ MenuButton(0.0f,0.2f, 3.0f, 0.1f), 
-				                              MenuButton(0.0f,-0.2f, 2.0f, 0.1f) };
-			pageText = vector<Text>{ Text(0.0f, 0.6f, "", 0.1f) };
-			pageID = "join";
-		}
-	}
-	return 0;
-}
-*/
 
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
-	string choice = getChoice(&renderer, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
+	AudioDevice audioDevice;
+	std::string choice = getChoice(&renderer, &audioDevice, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
 	if (choice == "JOIN GAME") {
-		choice = getChoice(&renderer, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
-		string joincode = "NONE";
+		choice = getChoice(&renderer, &audioDevice, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
+		std::string joincode = "NONE";
 		if (choice == "LAN") {
 			joincode = getInput(&renderer, "JOINCODE", "CF4817250000");
-			string username = getInput(&renderer, "ENTER USERNAME", "");
-			game(joincode, &renderer, username);
+			std::string username = getInput(&renderer, "ENTER USERNAME", "");
+			game(joincode, &renderer, &audioDevice, username);
 		}
 		else if (choice == "ZEROTIER") {
 			joincode = getInput(&renderer, "IP:PORT", "100.127.255.249:50000");
-			string username = getInput(&renderer, "ENTER USERNAME", "");
-			game(joincode, &renderer, username);
+			std::string username = getInput(&renderer, "ENTER USERNAME", "");
+			game(joincode, &renderer, &audioDevice, username);
 		}
 	}
 	return 0;

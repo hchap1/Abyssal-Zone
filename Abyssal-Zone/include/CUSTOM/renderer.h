@@ -8,9 +8,9 @@
 #include <GLFW/glfw3.h>
 #include "CUSTOM/shader.h"
 #include <mutex>
-using namespace std;
 
-tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
+
+std::tuple<float*, int, float, float> tilemapDecoder(std::vector<std::vector<int>> tilemap, int tileTextureSize, int windowWidth, int windowHeight, float blockSize) {
     int numOfTriangles = 0;
 
     float xScale = blockSize / windowWidth;
@@ -28,7 +28,6 @@ tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int
     int tileType = 0;
 
     for (int height = 0; height < tilemap.size(); height++) {
-        cout << endl;
         for (int width = 0; width < tilemap[0].size(); width++) {
             tileType = tilemap[height][width];
             yOffset = offset * tileType;
@@ -79,7 +78,7 @@ tuple<float*, int, float, float> tilemapDecoder(vector<vector<int>> tilemap, int
             }
         }
     }
-    return make_tuple(vertexData, numOfTriangles, xScale, yScale);
+    return std::make_tuple(vertexData, numOfTriangles, xScale, yScale);
 }
 
 class RenderLayer {
@@ -116,7 +115,7 @@ public:
 
         //Load the image file
         int width, height, nrChannels;
-        string texturePath = "assets/textures/" + textureName + ".png";
+        std::string texturePath = "assets/textures/" + textureName + ".png";
 
         unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 
@@ -128,36 +127,36 @@ public:
         stbi_image_free(data);
 
         //Create shader obj for this rendering layer
-        string vertexPath = "assets/shaders/" + shaderName + "_vertex_shader.glsl";
-        string fragmentPath = "assets/shaders/" + shaderName + "_fragment_shader.glsl";
+        std::string vertexPath = "assets/shaders/" + shaderName + "_vertex_shader.glsl";
+        std::string fragmentPath = "assets/shaders/" + shaderName + "_fragment_shader.glsl";
         shader = Shader(vertexPath.c_str(), fragmentPath.c_str());
     }
 
     void setVertices(float* vertices, int numTriangles, int numFloatsPerTriangle, unsigned int mode) {
-        lock_guard<mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(mtx);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, numTriangles * numFloatsPerTriangle * sizeof(float), vertices, mode);
     }
     void draw(int numTriangles) {
-        lock_guard<mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(mtx);
         glBindVertexArray(VAO);
         glBindTexture(GL_TEXTURE_2D, texture);
         shader.use();
         glDrawArrays(GL_TRIANGLES, 0, numTriangles * 3);
     }
-    void setFloat(string name, float value) {
-        lock_guard<mutex> lock(mtx);
+    void setFloat(std::string name, float value) {
+        std::lock_guard<std::mutex> lock(mtx);
         shader.use();
         shader.setFloat(name, value);
     }
-    void setBool(string name, bool value) {
-        lock_guard<mutex> lock(mtx);
+    void setBool(std::string name, bool value) {
+        std::lock_guard<std::mutex> lock(mtx);
         shader.use();
         shader.setBool(name, value);
     }
-    void setArray_64_vec4(string name, float (*value)[4], int elementCount) {
-        lock_guard<mutex> lock(mtx);
+    void setArray_64_vec4(std::string name, float (*value)[4], int elementCount) {
+        std::lock_guard<std::mutex> lock(mtx);
         shader.use();
         float** arr = new float* [64];
         for (int i = 0; i < 64; ++i) {
@@ -172,7 +171,7 @@ private:
     unsigned int texture;
     int step;
     Shader shader;
-    mutex mtx;
+    std::mutex mtx;
 };
 
 class Renderer {

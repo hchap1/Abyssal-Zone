@@ -6,25 +6,25 @@
 #include <algorithm>
 #include <tuple>
 #include "CUSTOM/packet.h"
-using namespace std;
 
-tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
-    const string filename = "assets/levels/" + to_string(levelID) + ".tilemap";
-    ifstream file(filename);
+
+std::tuple<std::vector<std::vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
+    const std::string filename = "assets/levels/" + std::to_string(levelID) + ".tilemap";
+    std::ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Error opening file: " << filename << endl;
+        std::cerr << "Error opening file: " << filename << std::endl;
     }
 
-    vector<vector<int>> tilemap;
+    std::vector<std::vector<int>> tilemap;
     static float lightArray[256][4] = {};
-    string line;
+    std::string line;
     int yCount = 0;
     int xCount = 0;
     int index = 0;
     int number;
     while (getline(file, line)) {
-        istringstream iss(line);
-        vector<int> row;
+        std::istringstream iss(line);
+        std::vector<int> row;
         while (iss >> number) {
             if (number > 7) {
                 number += 7;
@@ -56,25 +56,25 @@ tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromFile(int levelID) {
 
 int* loadLevelData(int levelID) {
     int data[4] = {};
-    ifstream dataFile("assets/levels/" + to_string(levelID) + ".tilemap");
+    std::ifstream dataFile("assets/levels/" + std::to_string(levelID) + ".tilemap");
     dataFile >> data[0] >> data[1] >> data[2] >> data[3];
     dataFile.close();
     return data;
 }
 
-tuple<vector<vector<int>>, float(*)[4], int> loadTilemapFromString(string message) {
+std::tuple<std::vector<std::vector<int>>, float(*)[4], int> loadTilemapFromString(std::string message) {
     static float lightArray[256][4] = {};
-    vector<string> data = splitString(message, '|');
-    string tilemapString = splitString(data[1], '!')[0];
-    vector<vector<int>> newTilemap;
+    std::vector<std::string> data = splitString(message, '|');
+    std::string tilemapString = splitString(data[1], '!')[0];
+    std::vector<std::vector<int>> newTilemap;
     int xCount = 0;
     int yCount = 0;
     int index = 0;
     int size = count(tilemapString.begin(), tilemapString.end(), '/') + 1;
-    for (string row : splitString(tilemapString, '/')) {
-        vector<int> v_row;
-        for (string tile : splitString(row, ',')) {
-            int t = stoi(tile);
+    for (std::string row : splitString(tilemapString, '/')) {
+        std::vector<int> v_row;
+        for (std::string tile : splitString(row, ',')) {
+            int t = std::stoi(tile);
             if (t > 7) {
                 t += 7;
             }
