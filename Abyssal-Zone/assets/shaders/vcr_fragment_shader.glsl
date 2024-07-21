@@ -3,9 +3,10 @@
 in vec2 TexCoord;
 out vec4 FragColor;
 
-uniform sampler2D blockTexture;
+uniform sampler2D screenTexture;
 
-void main(){
-	vec4 pC = texture(blockTexture, TexCoord);
-	FragColor = vec4(pC.x, pC.y, pC.z, pC.w * 0.3);
+void main()
+{
+    vec4 color = texture(screenTexture, TexCoord);
+    FragColor = vec4(color.x, color.y, color.z, color.w * 0.1);
 }

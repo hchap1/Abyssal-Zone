@@ -196,7 +196,7 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 	RenderLayer tilemapRenderer({ 2, 2, 1 }, "tile", "tile_texture", false); // vx, vy, tx, ty, lx, ly
 	RenderLayer playerRenderer({ 2, 2 }, "player", "player_texture", true);
 	RenderLayer multiplayerRenderer({ 2, 2, 1, 1, 1, 1 }, "multiplayer", "player_texture", true);
-	RenderLayer enemyRenderer({ 2, 2, 1 }, "enemy", "enemies", true);
+	RenderLayer enemyRenderer({ 2, 2 }, "enemy", "enemies", true);
 	RenderLayer vcrRenderer({ 2, 2 }, "vcr", "vcr", false);
 
 	bool doMultiplayer = false;
@@ -503,47 +503,48 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 				validCount += 1;
 			}
 			triangleCount = 0;
-			float* enemyVertexArray = new float[validCount * 30];
+			float* enemyVertexArray = new float[validCount * 24];
 			index = 0;
 			halfPlayerHeight *= 0.5f;
 			for (const auto& pair : enemyData) {
 				EnemyData enemy = pair.second;
 				float xPos = enemy.x * blockWidth + halfPlayerWidth * 1.5f;
 				float yPos = enemy.y * blockHeight + halfPlayerHeight;
-				float rotation = enemy.rotation * (4/3.1415);
+				float rotation = roundf(enemy.rotation / 0.785) * 0.125;
+				if (rotation >= 1.0f) { rotation = 0.0f; }
 				triangleCount += 2;
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = rotation;
 				enemyVertexArray[index++] = 1.0f;
 
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = rotation;
 				enemyVertexArray[index++] = 0.0f;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
-				enemyVertexArray[index++] = 1.0f;;
+				enemyVertexArray[index++] = rotation + 0.125;
 				enemyVertexArray[index++] = 0.0f;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
-				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = rotation + 0.125;
 				enemyVertexArray[index++] = 1.0f;
 
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = rotation;
 				enemyVertexArray[index++] = 1.0f;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
-				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = rotation + 0.125;
 				enemyVertexArray[index++] = 0.0f;
 			}
 			halfPlayerHeight *= 2.0f;
-			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 15, GL_DYNAMIC_DRAW);
+			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
 			enemyRenderer.draw(triangleCount);
 			delete[] enemyVertexArray;
 		
@@ -673,7 +674,7 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 			indexXRightSmall = static_cast<int>((playerX - (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
 			indexXLeft = static_cast<int>((playerX + halfPlayerWidth) / blockWidth * -1.0f);
 			indexXLeftSmall = static_cast<int>((playerX + (halfPlayerWidth * 0.9f)) / blockWidth * -1.0f);
-			indexY = static_cast<int>((playerY) / blockHeight * -1.0f);
+			indexY = static_cast<int>((playerY) / blockHeight * -1.0f);	
 			indexHeadY = static_cast<int>((playerY + halfPlayerHeight * 0.1f) / blockHeight * -1.0f + 1.0f);
 			indexTop = static_cast<int>((playerY - (blockHeight - halfPlayerHeight) * 2.0f - blockHeight) / blockHeight * -1.0f);
 
@@ -731,19 +732,24 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 int main() {
 	Renderer renderer(windowWidth, windowHeight, "The Abyssal Zone");
 	AudioDevice audioDevice;
-	std::string choice = getChoice(&renderer, &audioDevice, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
-	if (choice == "JOIN GAME") {
-		choice = getChoice(&renderer, &audioDevice, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
-		std::string joincode = "NONE";
-		if (choice == "LAN") {
-			joincode = getInput(&renderer, "JOINCODE", "CF4817250000");
-			std::string username = getInput(&renderer, "ENTER USERNAME", "");
-			game(joincode, &renderer, &audioDevice, username);
+	while (true) {
+		std::string choice = getChoice(&renderer, &audioDevice, "THE ABYSSAL ZONE", { "JOIN GAME", "SETTINGS", "EXIT" });
+		if (choice == "JOIN GAME") {
+			choice = getChoice(&renderer, &audioDevice, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
+			std::string joincode = "NONE";
+			if (choice == "LAN") {
+				joincode = getInput(&renderer, "JOINCODE", "BE412450000");
+				std::string username = getInput(&renderer, "ENTER USERNAME", "");
+				game(joincode, &renderer, &audioDevice, username);
+			}
+			else if (choice == "ZEROTIER") {
+				joincode = getInput(&renderer, "IP:PORT", "100.127.255.249:50000");
+				std::string username = getInput(&renderer, "ENTER USERNAME", "");
+				game(joincode, &renderer, &audioDevice, username);
+			}
 		}
-		else if (choice == "ZEROTIER") {
-			joincode = getInput(&renderer, "IP:PORT", "100.127.255.249:50000");
-			std::string username = getInput(&renderer, "ENTER USERNAME", "");
-			game(joincode, &renderer, &audioDevice, username);
+		if (choice == "EXIT") {
+			return 0;
 		}
 	}
 	return 0;

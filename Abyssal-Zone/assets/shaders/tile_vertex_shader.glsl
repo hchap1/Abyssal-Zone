@@ -30,6 +30,14 @@ uniform float ripple;
 
 void main(){
 	vec4 shiftedPosition = vec4((aPos.x + xOffset) * zoom, (aPos.y + yOffset) * zoom, 1.0, 1.0);
+	vec2 uv = vec2(shiftedPosition.x,shiftedPosition.y) * 0.5;
+	float strength = 0.25;
+	float dist = length(uv);
+	if (dist < 1.0) {
+		float factor = 1.0 - dist;
+        uv = uv * factor * strength + uv * (1.0 - strength);
+	}
+	uv *= 2.0;
 	float x = shiftedPosition.x / zoom;
 	float y = shiftedPosition.y / zoom;
 	vec3 RGB = vec3(0.0,0.0,0.0);
@@ -48,7 +56,7 @@ void main(){
 		}
 	} 
 	r = ripple;
-	yPos = shiftedPosition.y;
+	yPos = uv.y;
 
 	vec2 text = aTexCoord;
 	if (BlockID == 7.0) {
@@ -61,6 +69,6 @@ void main(){
 	redBrightness = (RGB.x + centerBrightness) * lightScale;
 	greenBrightness = (RGB.y + centerBrightness) * lightScale;
 	blueBrightness = (RGB.z + centerBrightness) * lightScale;
-	gl_Position = shiftedPosition;
+	gl_Position = vec4(uv, 1.0, 1.0);
 	vignette = (pow(shiftedPosition.x, 2) + pow(shiftedPosition.y, 2)) * 0.5;
 }

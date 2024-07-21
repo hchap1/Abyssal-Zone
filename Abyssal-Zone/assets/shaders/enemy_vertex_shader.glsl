@@ -1,7 +1,6 @@
 #version 330 core
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
-layout (location = 2) in float rotation;
 
 out vec2 TexCoord;
 
@@ -24,12 +23,7 @@ uniform float texOffset;
 uniform float torchLight;
 
 void main(){
-	mat2 r = mat2(
-        cos(rotation), -sin(rotation),
-        sin(rotation), cos(rotation)
-    );
-	vec2 rp = vec2((aPos.x + xOffset) * zoom, (aPos.y + yOffset) * zoom) * r;
-	vec4 shiftedPosition = vec4(rp.x, rp.y, 1.0, 1.0);
+	vec4 shiftedPosition = vec4((aPos.x + xOffset) * zoom, (aPos.y + yOffset) * zoom, 1.0, 1.0);
 	float x = shiftedPosition.x / zoom;
 	float y = shiftedPosition.y / zoom;
 	vec3 RGB = vec3(0.0,0.0,0.0);
