@@ -428,6 +428,7 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 			size_t triangleCount = 0;
 			float* multiplayerVertexArray = new float[size];
 			size_t index = 0;
+			float texHeight = 1.0f / 2.0f;
 			for (const auto& pair : playerData) {
 				PlayerData player = pair.second;
 				float xPos = player.x * blockWidth + halfPlayerWidth * 1.5f;
@@ -512,37 +513,38 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 				float xPos = enemy.x * blockWidth + halfPlayerWidth * 1.5f;
 				float yPos = enemy.y * blockHeight + halfPlayerHeight;
 				float rotation = roundf(enemy.rotation / 0.785) * 0.125;
+				float texOffset = texHeight * enemy.id;
 				if (rotation >= 1.0f) { rotation = 0.0f; }
 				triangleCount += 2;
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
 				enemyVertexArray[index++] = rotation;
-				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = texOffset + texHeight;
 
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
 				enemyVertexArray[index++] = rotation;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = texOffset;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
 				enemyVertexArray[index++] = rotation + 0.125;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = texOffset;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
 				enemyVertexArray[index++] = rotation + 0.125;
-				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = texOffset + texHeight;
 
 				enemyVertexArray[index++] = xPos - halfPlayerWidth;
 				enemyVertexArray[index++] = yPos + halfPlayerHeight;
 				enemyVertexArray[index++] = rotation;
-				enemyVertexArray[index++] = 1.0f;
+				enemyVertexArray[index++] = texOffset + texHeight;
 
 				enemyVertexArray[index++] = xPos + halfPlayerWidth;
 				enemyVertexArray[index++] = yPos - halfPlayerHeight;
 				enemyVertexArray[index++] = rotation + 0.125;
-				enemyVertexArray[index++] = 0.0f;
+				enemyVertexArray[index++] = texOffset;
 			}
 			halfPlayerHeight *= 2.0f;
 			enemyRenderer.setVertices(enemyVertexArray, triangleCount, 12, GL_DYNAMIC_DRAW);
@@ -739,7 +741,7 @@ int main() {
 			choice = getChoice(&renderer, &audioDevice, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
 			std::string joincode = "NONE";
 			if (choice == "LAN") {
-				joincode = getInput(&renderer, "JOINCODE", "CF4817250000");
+				joincode = getInput(&renderer, "JOINCODE", "BE412450000");
 				std::string username = getInput(&renderer, "ENTER USERNAME", "");
 				game(joincode, &renderer, &audioDevice, username);
 			}

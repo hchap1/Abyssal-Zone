@@ -98,9 +98,9 @@ public:
 
 class EnemyData {
 public:
-    float x, y, rotation;
-    EnemyData() : x(0.0f), y(0.0f), rotation(0.0f) {}
-    EnemyData(float x, float y, float rotation) : x(x), y(y), rotation(rotation) {}
+    float id, x, y, rotation;
+    EnemyData() : id(0.0f), x(0.0f), y(0.0f), rotation(0.0f) {}
+    EnemyData(float id, float x, float y, float rotation) : id(id), x(x), y(y), rotation(rotation) {}
 };
 
 class Client {
@@ -258,6 +258,7 @@ public:
 
                         // New enemy
                         if (identifier == "ne") {
+                            std::cout << "NEW ENEMY " << data << std::endl;
                             if (enemyData.find(data) == enemyData.end()) {
                                 enemyData[data] = EnemyData();
                             }
@@ -269,10 +270,13 @@ public:
                         // Enemy position packet
                         if (identifier == "ep") {
                             std::vector<std::string> components = splitString(data, ',');
+                            std::cout << "Received enemy data for " << components[0] << std::endl;
                             if (enemyData.find(components[0]) != enemyData.end()) {
-                                enemyData[components[0]].x = std::stof(components[1]);
-                                enemyData[components[0]].y = std::stof(components[2]);
-                                enemyData[components[0]].rotation = std::stof(components[3]);
+                                std::cout << "Enemy exists! X: " << components[2] << " Y: " << components[3] << std::endl;
+                                enemyData[components[0]].id = std::stof(components[1]);
+                                enemyData[components[0]].x = std::stof(components[2]);
+                                enemyData[components[0]].y = std::stof(components[3]);
+                                enemyData[components[0]].rotation = std::stof(components[4]);
                             }
                         }
                     }
