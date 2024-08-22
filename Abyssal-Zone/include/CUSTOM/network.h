@@ -124,16 +124,16 @@ public:
         playerY = py;
         crouching = ic;
         std::tuple<std::string, int> serverData = decodeIP(joinCode);
-        std::cout << get<0>(serverData) << " @ " << get<1>(serverData) << std::endl;
+        std::cout << std::get<0>(serverData) << " @ " << std::get<1>(serverData) << std::endl;
         WSADATA wsaData;
         int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-        address = get<0>(serverData);
+        address = std::get<0>(serverData);
         clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         sockaddr_in serverAddr;
         serverAddr.sin_family = AF_INET;
         inet_pton(AF_INET, address.c_str(), &serverAddr.sin_addr);
-        serverAddr.sin_port = htons(get<1>(serverData));
+        serverAddr.sin_port = htons(std::get<1>(serverData));
         connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
     }
 

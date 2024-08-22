@@ -21,6 +21,7 @@ float playerWidth = 0.8f;
 float playerHeight = 1.8f;
 float blockSize = 300.0f;
 bool vsync = true;
+std::map<std::string, int> enemyNameToID{ {"spider", 0 },{ "goblin", 1 }};
 
 bool collide(int blockID) {
 	if (blockID == 1 || blockID == 4) {
@@ -205,7 +206,7 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 	Client client;
 
 	std::tuple<std::vector<std::vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromFile(1);
-	std::vector<std::vector<int>> tilemap = get<0>(tilemapData);
+	std::vector<std::vector<int>> tilemap = std::get<0>(tilemapData);
 
 	renderer->fillScreen(0, 20, 60);
 	renderer->updateDisplay();
@@ -365,9 +366,9 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 			playerX = -blockWidth * startX - halfPlayerWidth * 1.5f;
 			playerY = -blockHeight * startY - halfPlayerHeight;
 			std::tuple<std::vector<std::vector<int>>, float(*)[4], int> tilemapData = loadTilemapFromString(RCV_str);
-			tilemap = get<0>(tilemapData);
-			float(*lightArray)[4] = get<1>(tilemapData);
-			int numLights = get<2>(tilemapData);
+			tilemap = std::get<0>(tilemapData);
+			float(*lightArray)[4] = std::get<1>(tilemapData);
+			int numLights = std::get<2>(tilemapData);
 			if (numLights > 0) { 
 				tilemapRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
 				playerRenderer.setArray_64_vec4("lightSources", lightArray, numLights);
@@ -380,9 +381,9 @@ int game(std::string joinCode, Renderer* renderer, AudioDevice* audioDevice, std
 			enemyRenderer.setFloat("lightCount", static_cast<float>(numLights));
 
 			std::tuple<float*, int, float, float> tilemapVertexData = tilemapDecoder(tilemap, 14, windowWidth, windowHeight, blockSize);
-			t = get<1>(tilemapVertexData);
-			tilemapRenderer.setVertices(get<0>(tilemapVertexData), get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
-			delete[] get<0>(tilemapVertexData);
+			t = std::get<1>(tilemapVertexData);
+			tilemapRenderer.setVertices(std::get<0>(tilemapVertexData), std::get<1>(tilemapVertexData), 15, GL_STATIC_DRAW);
+			delete[] std::get<0>(tilemapVertexData);
 		}
 
 		tilemapRenderer.setFloat("zoom", zoom);
@@ -738,7 +739,7 @@ int main() {
 			choice = getChoice(&renderer, &audioDevice, "INTERFACE", { "LAN", "ZEROTIER", "BACK" });
 			std::string joincode = "NONE";
 			if (choice == "LAN") {
-				joincode = getInput(&renderer, "JOINCODE", "BE412450000");
+				joincode = getInput(&renderer, "JOINCODE", "CF4817250000");
 				std::string username = getInput(&renderer, "ENTER USERNAME", "");
 				game(joincode, &renderer, &audioDevice, username);
 			}
